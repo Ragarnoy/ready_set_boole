@@ -1,65 +1,19 @@
-use std::fmt::{Display, Formatter};
-use core::fmt;
+mod node;
+mod operator;
+mod tree;
+
+use crate::node::Node;
+use crate::operator::Operator;
 
 const VALID_TOKENS: &[char] = &['1', '0', '!', '&', '^', '=', '|', '>'];
-
-#[derive(Debug, Clone)]
-pub enum Operator {
-    Neg,
-    And,
-    Or,
-    Xor,
-    Imply,
-    Leq,
-}
-
-impl Display for Operator {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        match self {
-            Operator::Neg => write!(f, "¬"),
-            Operator::And => write!(f, "∧"),
-            Operator::Or => write!(f, "∨"),
-            Operator::Xor => write!(f, "⊕"),
-            Operator::Imply => write!(f, "→"),
-            Operator::Leq => write!(f, "⇔"),
-        }
-    }
-}
-
-#[derive(Debug, Clone)]
-pub enum Node {
-    Val(bool),
-    UnaryExpr {
-        op: Operator,
-        child: Box<Node>,
-    },
-    BinaryExpr {
-        op: Operator,
-        lhs: Box<Node>,
-        rhs: Box<Node>,
-    },
-}
-
-impl Display for Node {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        let mut ret = String::new();
-
-        match self {
-            Node::Val(x) => ret.push_str(&*(if *x { "⊤" } else { "⊥" }).to_string()),
-            Node::UnaryExpr { op, child } => ret.push_str(&*format!("{}{}", op, child)),
-            Node::BinaryExpr { op, lhs, rhs } => ret.push_str(&*format!("{} {} {}", lhs, op, rhs)),
-        }
-        write!(f, "{}", ret)
-    }
-}
 
 fn parse_string(str: &str) -> Node {
     let mut node_vec: Vec<Node> = Vec::with_capacity(50);
 
     for c in str.chars() {
         let node = match c {
-            '1' => Node::Val(true),
-            '0' => Node::Val(false),
+            '1' => Node::Constant(true),
+            '0' => Node::Constant(false),
             '&' => Node::BinaryExpr {
                 op: Operator::And,
                 lhs: Box::new(node_vec.pop().expect("Invalid input")),
@@ -121,7 +75,7 @@ fn compute_node(node: Node) -> bool {
     let current = node;
 
     match current {
-        Node::Val(p) => p,
+        Node::Constant(p) => p,
         Node::BinaryExpr { op, lhs, rhs } => eval_binary(compute_node(*lhs), op, compute_node(*rhs)),
         Node::UnaryExpr { op, child } => eval_unary(op, compute_node(*child)),
     }
@@ -140,8 +94,11 @@ fn print_truth_table(formula: &str) -> bool {
     }
     let node = parse_string(formula);
     let res = compute_node(node);
-    println!("{}", res);
     res
+}
+
+fn cartesian_product(repeat: usize) {
+    for (a, b) in (0..4).map(|n| (n & 2 != 0, n & 1 != 0))
 }
 
 fn main() {
