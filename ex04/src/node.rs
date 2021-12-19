@@ -1,6 +1,7 @@
 use crate::operator::Operator;
-use std::fmt::{Display, Formatter};
 use std::fmt;
+use std::fmt::{Display, Formatter};
+use std::str::FromStr;
 
 #[derive(Debug, Clone)]
 pub enum Node {
@@ -26,5 +27,56 @@ impl Display for Node {
             Node::BinaryExpr { op, lhs, rhs } => ret.push_str(&*format!("{} {} {}", lhs, op, rhs)),
         }
         write!(f, "{}", ret)
+    }
+}
+
+impl FromStr for Node {
+    type Err = String;
+
+    fn from_str(str: &str) -> Result<Self, Self::Err> {
+        let mut node_vec: Vec<Node> = Vec::with_capacity(50);
+
+        for c in str.chars() {
+            let node = match c {
+                '1' => Node::Constant(true),
+                '0' => Node::Constant(false),
+                '&' => Node::BinaryExpr {
+                    op: Operator::And,
+                    lhs: Box::new(node_vec.pop().expect("Invalid input")),
+                    rhs: Box::new(node_vec.pop().expect("Invalid input")),
+                },
+                '|' => Node::BinaryExpr {
+                    op: Operator::Or,
+                    lhs: Box::new(node_vec.pop().expect("Invalid input")),
+                    rhs: Box::new(node_vec.pop().expect("Invalid input")),
+                },
+                '^' => Node::BinaryExpr {
+                    op: Operator::Xor,
+                    lhs: Box::new(node_vec.pop().expect("Invalid input")),
+                    rhs: Box::new(node_vec.pop().expect("Invalid input")),
+                },
+                '>' => Node::BinaryExpr {
+                    op: Operator::Imply,
+                    lhs: Box::new(node_vec.pop().expect("Invalid input")),
+                    rhs: Box::new(node_vec.pop().expect("Invalid input")),
+                },
+                '=' => Node::BinaryExpr {
+                    op: Operator::Leq,
+                    lhs: Box::new(node_vec.pop().expect("Invalid input")),
+                    rhs: Box::new(node_vec.pop().expect("Invalid input")),
+                },
+                '!' => Node::UnaryExpr {
+                    op: Operator::Neg,
+                    child: Box::new(node_vec.pop().expect("Invalid input")),
+                },
+                _ => return Err("Invalid input".to_string()),
+            };
+            node_vec.push(node);
+        }
+        if node_vec.is_empty() {
+            Err("Empty input".to_string())
+        } else {
+            Ok(node_vec.remove(0))
+        }
     }
 }
