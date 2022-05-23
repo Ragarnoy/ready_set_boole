@@ -39,7 +39,7 @@ fn compute_node(node: Node) -> bool {
     }
 }
 
-fn calculate_truth_table(formula: &str) -> Vec<Node> {
+fn calculate_truth_table(formula: &str) {
     if formula.is_empty() {
         panic!("Empty input!");
     }
@@ -47,27 +47,25 @@ fn calculate_truth_table(formula: &str) -> Vec<Node> {
         panic!("Invalid tokens");
     }
 
-    let map: Vec<(usize, char)> = formula
+    let variables: Vec<(usize, char)> = formula
         .to_string()
         .char_indices()
         .into_iter()
         .filter(|(_, ch)| ch.is_ascii_uppercase())
         .collect();
 
-    let mut nodes: Vec<Node> = Vec::with_capacity(map.len().pow(2));
+    let mut nodes: Vec<Node> = Vec::with_capacity(variables.len().pow(2));
     let mut char_vec = formula.to_string().chars().collect::<Vec<char>>();
-    for bitfield in 0..2u32.pow(map.len() as u32) {
-        for (i, _c) in &map {
-            char_vec[*i] = if bitfield & (1 << i) != 0 { '1' } else { '0' };
+    for bitfield in 0..2_u32.pow(variables.len() as u32) {
+        for i in 0..variables.len() {
+            char_vec[variables[i].0] = if bitfield & (1 << i) != 0 { '1' } else { '0' };
         }
-        dbg!(&char_vec);
         nodes.push(Node::from_str(&char_vec.iter().collect::<String>()).unwrap());
     }
 
-    for node in &nodes {
-        println!("{}", node);
+    for node in nodes {
+        println!("{} -> {}", node.clone(), compute_node(node));
     }
-    nodes
 }
 
 fn print_truth_table(nodes: Vec<Node>, map: Vec<(usize, char)>) {
@@ -79,7 +77,7 @@ fn main() {
     if args.len() > 1 && !args[1].is_empty() {
         calculate_truth_table(&args[1]);
     } else {
-        calculate_truth_table("AB^C|");
+        calculate_truth_table("AB&C|");
     }
 }
 

@@ -22,7 +22,7 @@ impl Display for Node {
         let mut ret = String::new();
 
         match self {
-            Node::Constant(x) => ret.push_str(&*(if *x { "⊤" } else { "⊥" }).to_string()),
+            Node::Constant(x) => ret.push_str(&*(if *x { "1" } else { "0" }).to_string()),
             Node::UnaryExpr { op, child } => ret.push_str(&*format!("{}{}", op, child)),
             Node::BinaryExpr { op, lhs, rhs } => ret.push_str(&*format!("{} {} {}", lhs, op, rhs)),
         }
