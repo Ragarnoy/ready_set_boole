@@ -97,7 +97,7 @@ impl Node {
 
 fn eval_binary(lhs: bool, op: Operator, rhs: bool) -> bool {
     match op {
-        Operator::Imply => !(!lhs & rhs),
+        Operator::Imply => !lhs | rhs,
         Operator::Leq => lhs == rhs,
         Operator::And => lhs & rhs,
         Operator::Xor => lhs ^ rhs,

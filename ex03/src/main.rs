@@ -105,7 +105,7 @@ fn eval_binary(lhs: bool, op: Operator, rhs: bool) -> bool {
         Operator::Or => lhs | rhs,
         Operator::And => lhs & rhs,
         Operator::Xor => lhs ^ rhs,
-        Operator::Imply => !(!lhs & rhs),
+        Operator::Imply => !lhs | rhs,
         _ => panic!("Impossible"),
     }
 }
