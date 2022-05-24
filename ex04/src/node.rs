@@ -80,3 +80,35 @@ impl FromStr for Node {
         }
     }
 }
+
+impl Node {
+    pub fn compute_node(self) -> bool {
+        let current = self;
+
+        match current {
+            Node::Constant(p) => p,
+            Node::BinaryExpr { op, lhs, rhs } => {
+                eval_binary(lhs.compute_node(), op, rhs.compute_node())
+            }
+            Node::UnaryExpr { op, child } => eval_unary(op, child.compute_node()),
+        }
+    }
+}
+
+fn eval_binary(lhs: bool, op: Operator, rhs: bool) -> bool {
+    match op {
+        Operator::Imply => !(!lhs & rhs),
+        Operator::Leq => lhs == rhs,
+        Operator::And => lhs & rhs,
+        Operator::Xor => lhs ^ rhs,
+        Operator::Or => lhs | rhs,
+        _ => unreachable!(),
+    }
+}
+
+fn eval_unary(op: Operator, child: bool) -> bool {
+    match op {
+        Operator::Neg => !child,
+        _ => unreachable!(),
+    }
+}
