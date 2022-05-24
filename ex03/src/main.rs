@@ -1,5 +1,5 @@
-use std::fmt::{Display, Formatter};
 use core::fmt;
+use std::fmt::{Display, Formatter};
 
 const VALID_TOKENS: &[char] = &['1', '0', '!', '&', '^', '=', '|', '>'];
 
@@ -47,7 +47,7 @@ impl Display for Node {
         match self {
             Node::Val(x) => ret.push_str(&*(if *x { "⊤" } else { "⊥" }).to_string()),
             Node::UnaryExpr { op, child } => ret.push_str(&*format!("{}{}", op, child)),
-            Node::BinaryExpr {op, lhs, rhs } => ret.push_str(&*format!("{} {} {}", lhs, op, rhs)),
+            Node::BinaryExpr { op, lhs, rhs } => ret.push_str(&*format!("{} {} {}", lhs, op, rhs)),
         }
         write!(f, "{}", ret)
     }
@@ -122,8 +122,10 @@ fn compute_node(node: Node) -> bool {
 
     match current {
         Node::Val(p) => p,
-        Node::BinaryExpr {op, lhs, rhs } => eval_binary(compute_node(*lhs), op, compute_node(*rhs)),
-        Node::UnaryExpr {op, child } => eval_unary(op, compute_node(*child)),
+        Node::BinaryExpr { op, lhs, rhs } => {
+            eval_binary(compute_node(*lhs), op, compute_node(*rhs))
+        }
+        Node::UnaryExpr { op, child } => eval_unary(op, compute_node(*child)),
     }
 }
 

@@ -1,6 +1,5 @@
 mod node;
 mod operator;
-mod tree;
 mod truth_table;
 
 use crate::node::Node;

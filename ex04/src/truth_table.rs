@@ -1,6 +1,6 @@
+use crate::Node;
 use std::fmt::{Display, Formatter};
 use std::str::FromStr;
-use crate::Node;
 
 const VALID_TOKENS: &[char] = &['1', '0', '!', '&', '^', '=', '|', '>'];
 
@@ -14,14 +14,17 @@ impl FromStr for TruthTable {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         if s.is_empty() {
-            return Err(String::from("Empty input!"))
+            return Err(String::from("Empty input!"));
         }
         if !s.contains(VALID_TOKENS) || !s.contains(|ch| ('A'..='Z').contains(&ch)) {
             return Err(String::from("Invalid tokens"));
         }
 
-
-        let mut variables: Vec<String> = s.chars().filter(|ch| ch.is_ascii_uppercase()).map(|ch| ch.to_string()).collect();
+        let mut variables: Vec<String> = s
+            .chars()
+            .filter(|ch| ch.is_ascii_uppercase())
+            .map(|ch| ch.to_string())
+            .collect();
         variables.sort();
         variables.dedup();
 
@@ -30,7 +33,6 @@ impl FromStr for TruthTable {
             initial_formula: s.to_string(),
         })
     }
-
 }
 
 impl Display for TruthTable {
@@ -44,7 +46,6 @@ impl Display for TruthTable {
         let separator = header.replace(|ch| ch != '|', "-");
 
         let mut body = String::with_capacity(self.variables.len() * self.variables.len() * 3 + 3);
-
         for bitfield in 0..2_u32.pow(self.variables.len() as u32) {
             let mut tmp_formula = self.initial_formula.clone();
             let mut tmp_bodyline = header.clone();
@@ -67,7 +68,13 @@ impl Display for TruthTable {
                 );
             }
             let result = Node::from_str(&*tmp_formula).unwrap().compute_node();
-            body.push_str(format!("{}\n", tmp_bodyline.replace('=', if result { "1" } else { "0" })).as_str());
+            body.push_str(
+                format!(
+                    "{}\n",
+                    tmp_bodyline.replace('=', if result { "1" } else { "0" })
+                )
+                .as_str(),
+            );
         }
 
         write!(f, "{}\n{}\n{}", header, separator, body)

@@ -8,7 +8,6 @@ fn main() {
     }
 }
 
-
 #[cfg(test)]
 mod test_gray_code {
     use super::*;
@@ -23,4 +22,3 @@ mod test_gray_code {
         assert_eq!(gray_code(6), 5);
     }
 }
-

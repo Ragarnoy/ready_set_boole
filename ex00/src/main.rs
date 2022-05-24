@@ -1,9 +1,10 @@
-
 fn adder(a: u32, b: u32) -> u32 {
     let uncommon = a ^ b;
     let common = a & b;
 
-    if common == 0 { return uncommon; }
+    if common == 0 {
+        return uncommon;
+    }
     adder(uncommon, common << 1)
 }
 
