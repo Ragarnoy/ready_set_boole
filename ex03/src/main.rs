@@ -172,54 +172,53 @@ mod test_bool_eval {
 
     #[test]
     fn test_ands() {
-        assert_eq!(eval_formula("10&"), false);
-        assert_eq!(eval_formula("11&"), true);
-        assert_eq!(eval_formula("00&"), false);
+        assert!(!eval_formula("10&"));
+        assert!(eval_formula("11&"));
+        assert!(!eval_formula("00&"));
     }
 
     #[test]
     fn test_ors() {
-        assert_eq!(eval_formula("10|"), true);
-        assert_eq!(eval_formula("11|"), true);
-        assert_eq!(eval_formula("00|"), false);
+        assert!(eval_formula("10|"));
+        assert!(eval_formula("11|"));
+        assert!(!eval_formula("00|"));
     }
 
     #[test]
     fn test_xors() {
-        assert_eq!(eval_formula("10^"), true);
-        assert_eq!(eval_formula("11^"), false);
-        assert_eq!(eval_formula("00^"), false);
+        assert!(eval_formula("10^"));
+        assert!(!eval_formula("11^"));
+        assert!(!eval_formula("00^"));
     }
 
     #[test]
     fn test_negs() {
-        assert_eq!(eval_formula("0!"), true);
-        assert_eq!(eval_formula("1!"), false);
+        assert!(eval_formula("0!"));
+        assert!(!eval_formula("1!"));
     }
 
     #[test]
     fn test_imply() {
-        assert_eq!(eval_formula("11>"), true);
-        assert_eq!(eval_formula("00>"), true);
-        assert_eq!(eval_formula("01>"), false);
-        assert_eq!(eval_formula("10>"), true);
+        assert!(eval_formula("11>"));
+        assert!(eval_formula("00>"));
+        assert!(!eval_formula("01>"));
+        assert!(eval_formula("10>"));
     }
 
     #[test]
     fn test_leqs() {
-        assert_eq!(eval_formula("11="), true);
-        assert_eq!(eval_formula("01="), false);
-        assert_eq!(eval_formula("00="), true);
-        assert_eq!(eval_formula("10="), false);
+        assert!(eval_formula("11="));
+        assert!(!eval_formula("01="));
+        assert!(eval_formula("00="));
+        assert!(!eval_formula("10="));
     }
 
     #[test]
     fn test_examples() {
-        assert_eq!(eval_formula("10&"), false);
-        assert_eq!(eval_formula("10|"), true);
-        assert_eq!(eval_formula("11>"), true);
-        assert_eq!(eval_formula("10="), false);
-        assert_eq!(eval_formula("1011||="), true);
+        assert!(!eval_formula("10&"));
+        assert!(eval_formula("10|"));
+        assert!(eval_formula("11>"));
+        assert!(!eval_formula("10="));
+        assert!(eval_formula("1011||="));
     }
 }
-
