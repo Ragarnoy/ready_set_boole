@@ -3,6 +3,8 @@ use std::fmt;
 use std::fmt::{Display, Formatter};
 use std::str::FromStr;
 
+const VALID_TOKENS: &[char] = &['1', '0', '!', '&', '^', '=', '|', '>'];
+
 #[derive(Debug, Clone)]
 pub enum Node {
     Constant(bool),
@@ -33,10 +35,17 @@ impl Display for Node {
 impl FromStr for Node {
     type Err = String;
 
-    fn from_str(str: &str) -> Result<Self, Self::Err> {
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        if s.is_empty() {
+            return Err(String::from("Empty input!"));
+        }
+        if !s.contains(VALID_TOKENS) {
+            return Err(String::from("Invalid tokens"));
+        }
+
         let mut node_vec: Vec<Node> = Vec::with_capacity(50);
 
-        for c in str.chars() {
+        for c in s.chars() {
             let node = match c {
                 '1' => Node::Constant(true),
                 '0' => Node::Constant(false),

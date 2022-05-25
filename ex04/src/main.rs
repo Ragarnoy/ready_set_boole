@@ -1,10 +1,7 @@
-mod node;
-mod operator;
 mod truth_table;
 
-use crate::node::Node;
-use crate::truth_table::TruthTable;
 use std::str::FromStr;
+use crate::truth_table::TruthTable;
 
 fn print_truth_table(formula: &str) {
     let truth_table = TruthTable::from_str(formula).unwrap();
