@@ -70,12 +70,12 @@ impl FromStr for Node {
                     rhs: Box::new(node_vec.pop().expect("Invalid input")),
                 },
                 '=' => Node::BinaryExpr {
-                    op: Operator::Leq,
+                    op: Operator::Xnor,
                     lhs: Box::new(node_vec.pop().expect("Invalid input")),
                     rhs: Box::new(node_vec.pop().expect("Invalid input")),
                 },
                 '!' => Node::UnaryExpr {
-                    op: Operator::Neg,
+                    op: Operator::Not,
                     child: Box::new(node_vec.pop().expect("Invalid input")),
                 },
                 _ => return Err("Invalid input".to_string()),
@@ -107,7 +107,7 @@ impl Node {
 fn eval_binary(lhs: bool, op: Operator, rhs: bool) -> bool {
     match op {
         Operator::Imply => !lhs | rhs,
-        Operator::Leq => lhs == rhs,
+        Operator::Xnor => lhs == rhs,
         Operator::And => lhs & rhs,
         Operator::Xor => lhs ^ rhs,
         Operator::Or => lhs | rhs,
@@ -117,7 +117,7 @@ fn eval_binary(lhs: bool, op: Operator, rhs: bool) -> bool {
 
 fn eval_unary(op: Operator, child: bool) -> bool {
     match op {
-        Operator::Neg => !child,
+        Operator::Not => !child,
         _ => unreachable!(),
     }
 }
