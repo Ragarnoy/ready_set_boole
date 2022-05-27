@@ -105,6 +105,23 @@ impl Node {
         }
     }
 
+    pub fn child(&self) -> Option<&Node> {
+        match self {
+            Node::UnaryExpr { child, .. } => Some(child),
+            _ => None,
+        }
+    }
+
+    pub fn set_child(&mut self, child: Node) {
+        match self {
+            Node::UnaryExpr { child: _, .. } => *self = Node::UnaryExpr {
+                op: Operator::Not,
+                child: Box::new(child),
+            },
+            _ => panic!("Cannot set child for binary expression"),
+        }
+    }
+
     pub fn is_constant(&self) -> bool {
         matches!(self, Node::Constant(_))
     }
