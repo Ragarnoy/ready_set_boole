@@ -7,7 +7,7 @@ use std::str::FromStr;
 
 const VALID_TOKENS: &[char] = &['1', '0', '!', '&', '^', '=', '|', '>'];
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Node {
     Constant(bool),
     UnaryExpr {
