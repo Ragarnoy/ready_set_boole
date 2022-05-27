@@ -94,9 +94,7 @@ impl FromStr for Node {
 
 impl Node {
     pub fn compute_node(self) -> bool {
-        let current = self;
-
-        match current {
+        match self {
             Node::Constant(p) => p,
             Node::BinaryExpr { op, lhs, rhs } => {
                 eval_binary(lhs.compute_node(), op, rhs.compute_node())
