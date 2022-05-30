@@ -4,6 +4,7 @@ use crate::operator::Operator;
 use std::fmt;
 use std::fmt::{Display, Formatter};
 use std::str::FromStr;
+use crate::node::nnf::negation_normal_form;
 
 const VALID_TOKENS: &[char] = &['1', '0', '!', '&', '^', '=', '|', '>'];
 
@@ -105,6 +106,10 @@ impl Node {
             }
             Node::UnaryExpr { op, child } => eval_unary(op, child.compute_node()),
         }
+    }
+
+    pub fn nnf(self) -> Self {
+        negation_normal_form(self)
     }
 
     pub fn child(&self) -> Option<&Node> {
