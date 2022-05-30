@@ -29,7 +29,7 @@ impl Display for Node {
 
         match self {
             Node::Variable(c) => ret.push(*c),
-            Node::Constant(x) => ret.push_str(&*(if *x { "1" } else { "0" }).to_string()),
+            Node::Constant(x) => ret.push(if *x { '1' } else { '0' }),
             Node::UnaryExpr { op, child } => ret.push_str(&*format!("{}{}", op, child)),
             Node::BinaryExpr { op, lhs, rhs } => ret.push_str(&*format!("{} {} {}", lhs, op, rhs)),
         }
@@ -110,6 +110,20 @@ impl Node {
 
     pub fn nnf(self) -> Self {
         negation_normal_form(self)
+    }
+
+    pub fn print_rpn(&self) -> String {
+        let mut ret = String::new();
+        match self {
+            // for a variable or constant, just print the value
+            Node::Variable(c) => ret.push(*c),
+            Node::Constant(x) => ret.push(if *x { '1' } else { '0' }),
+            // for a unary expression, first recurse on the child, then print the operator
+            Node::UnaryExpr { op, child } => ret.push_str(&*format!("{}{:?}", Node::print_rpn(child), op)),
+            // for a binary expression, first recurse on the lhs, then recurse on the rhs, then print the operator
+            Node::BinaryExpr { op, lhs, rhs } => ret.push_str(&*format!("{}{}{:?}", Node::print_rpn(lhs), Node::print_rpn(rhs), op)),
+        }
+        ret
     }
 
     pub fn child(&self) -> Option<&Node> {
@@ -212,5 +226,40 @@ fn eval_unary(op: Operator, child: bool) -> bool {
     match op {
         Operator::Not => !child,
         _ => unreachable!(),
+    }
+}
+
+#[cfg(test)]
+mod node_tests {
+    use crate::node::Node;
+    use std::str::FromStr;
+
+    #[test]
+    // lots of rpn tests
+    fn test_print_rpn() {
+        let teststr = "AB&";
+        let node = Node::from_str(teststr).unwrap();
+        assert_eq!(node.print_rpn(), teststr);
+    }
+
+    #[test]
+    fn test_print_rpn_2() {
+        let teststr = "AB&C|";
+        let node = Node::from_str(teststr).unwrap();
+        assert_eq!(node.print_rpn(), teststr);
+    }
+
+    #[test]
+    fn test_print_rpn_3() {
+        let teststr = "AB&C|D^";
+        let node = Node::from_str(teststr).unwrap();
+        assert_eq!(node.print_rpn(), teststr);
+    }
+
+    #[test]
+    fn test_print_rpn_4() {
+        let teststr = "AB&C|D^!";
+        let node = Node::from_str(teststr).unwrap();
+        assert_eq!(node.print_rpn(), teststr);
     }
 }
