@@ -9,6 +9,7 @@ const VALID_TOKENS: &[char] = &['1', '0', '!', '&', '^', '=', '|', '>'];
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Node {
+    Variable(char),
     Constant(bool),
     UnaryExpr {
         op: Operator,
@@ -26,6 +27,7 @@ impl Display for Node {
         let mut ret = String::new();
 
         match self {
+            Node::Variable(c) => ret.push(*c),
             Node::Constant(x) => ret.push_str(&*(if *x { "1" } else { "0" }).to_string()),
             Node::UnaryExpr { op, child } => ret.push_str(&*format!("{}{}", op, child)),
             Node::BinaryExpr { op, lhs, rhs } => ret.push_str(&*format!("{} {} {}", lhs, op, rhs)),
@@ -49,6 +51,7 @@ impl FromStr for Node {
 
         for c in s.chars() {
             let node = match c {
+                'A'..='Z' => Node::Variable(c),
                 '1' => Node::Constant(true),
                 '0' => Node::Constant(false),
                 '&' => Node::BinaryExpr {
@@ -95,6 +98,7 @@ impl FromStr for Node {
 impl Node {
     pub fn compute_node(self) -> bool {
         match self {
+            Node::Variable(_) => panic!("Variable node cannot be evaluated"),
             Node::Constant(p) => p,
             Node::BinaryExpr { op, lhs, rhs } => {
                 eval_binary(lhs.compute_node(), op, rhs.compute_node())
@@ -112,10 +116,12 @@ impl Node {
 
     pub fn set_child(&mut self, child: Node) {
         match self {
-            Node::UnaryExpr { child: _, .. } => *self = Node::UnaryExpr {
-                op: Operator::Not,
-                child: Box::new(child),
-            },
+            Node::UnaryExpr { child: _, .. } => {
+                *self = Node::UnaryExpr {
+                    op: Operator::Not,
+                    child: Box::new(child),
+                }
+            }
             _ => panic!("Cannot set child for binary expression"),
         }
     }
@@ -144,17 +150,16 @@ impl Node {
                     rhs.negation_normal_form();
                 }
                 match *op {
-                   Operator::Imply => {
-                       *self = Node::BinaryExpr {
-                           op: Operator::Or,
-                           lhs: Box::new(Node::UnaryExpr {
-                               op: Operator::Not,
-                               child: Box::new(*lhs.clone()),
-                           }),
-                           rhs: Box::new(*rhs.clone()),
-                       };
-
-                   }
+                    Operator::Imply => {
+                        *self = Node::BinaryExpr {
+                            op: Operator::Or,
+                            lhs: Box::new(Node::UnaryExpr {
+                                op: Operator::Not,
+                                child: Box::new(*lhs.clone()),
+                            }),
+                            rhs: Box::new(*rhs.clone()),
+                        };
+                    }
                     Operator::Xnor => {
                         *self = Node::BinaryExpr {
                             op: Operator::Or,
@@ -175,7 +180,6 @@ impl Node {
                                 }),
                             }),
                         };
-
                     }
                     Operator::And => {}
                     Operator::Or => {}
