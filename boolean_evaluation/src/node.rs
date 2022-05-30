@@ -56,28 +56,28 @@ impl FromStr for Node {
                 '0' => Node::Constant(false),
                 '&' => Node::BinaryExpr {
                     op: Operator::And,
-                    lhs: Box::new(node_vec.pop().expect("Invalid input")),
                     rhs: Box::new(node_vec.pop().expect("Invalid input")),
+                    lhs: Box::new(node_vec.pop().expect("Invalid input")),
                 },
                 '|' => Node::BinaryExpr {
                     op: Operator::Or,
-                    lhs: Box::new(node_vec.pop().expect("Invalid input")),
                     rhs: Box::new(node_vec.pop().expect("Invalid input")),
+                    lhs: Box::new(node_vec.pop().expect("Invalid input")),
                 },
                 '^' => Node::BinaryExpr {
                     op: Operator::Xor,
-                    lhs: Box::new(node_vec.pop().expect("Invalid input")),
                     rhs: Box::new(node_vec.pop().expect("Invalid input")),
+                    lhs: Box::new(node_vec.pop().expect("Invalid input")),
                 },
                 '>' => Node::BinaryExpr {
                     op: Operator::Imply,
-                    lhs: Box::new(node_vec.pop().expect("Invalid input")),
                     rhs: Box::new(node_vec.pop().expect("Invalid input")),
+                    lhs: Box::new(node_vec.pop().expect("Invalid input")),
                 },
                 '=' => Node::BinaryExpr {
                     op: Operator::Xnor,
-                    lhs: Box::new(node_vec.pop().expect("Invalid input")),
                     rhs: Box::new(node_vec.pop().expect("Invalid input")),
+                    lhs: Box::new(node_vec.pop().expect("Invalid input")),
                 },
                 '!' => Node::UnaryExpr {
                     op: Operator::Not,
