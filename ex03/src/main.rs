@@ -67,8 +67,8 @@ mod test_bool_eval {
     fn test_imply() {
         assert!(eval_formula("11>"));
         assert!(eval_formula("00>"));
-        assert!(!eval_formula("01>"));
-        assert!(eval_formula("10>"));
+        assert!(eval_formula("01>"));
+        assert!(!eval_formula("10>"));
     }
 
     #[test]
