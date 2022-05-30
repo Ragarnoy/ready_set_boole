@@ -1,5 +1,5 @@
-use std::str::FromStr;
 use boolean_evaluation::node::Node;
+use std::str::FromStr;
 
 fn eval_formula(str: &str) -> bool {
     let node = Node::from_str(str).unwrap();

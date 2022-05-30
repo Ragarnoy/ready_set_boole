@@ -1,7 +1,7 @@
 mod truth_table;
 
-use std::str::FromStr;
 use crate::truth_table::TruthTable;
+use std::str::FromStr;
 
 fn print_truth_table(formula: &str) {
     let truth_table = TruthTable::from_str(formula).unwrap();

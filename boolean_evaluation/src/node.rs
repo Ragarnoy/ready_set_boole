@@ -1,10 +1,10 @@
 mod nnf;
 
+use crate::node::nnf::negation_normal_form;
 use crate::operator::Operator;
 use std::fmt;
 use std::fmt::{Display, Formatter};
 use std::str::FromStr;
-use crate::node::nnf::negation_normal_form;
 
 const VALID_TOKENS: &[char] = &['1', '0', '!', '&', '^', '=', '|', '>'];
 
@@ -119,9 +119,16 @@ impl Node {
             Node::Variable(c) => ret.push(*c),
             Node::Constant(x) => ret.push(if *x { '1' } else { '0' }),
             // for a unary expression, first recurse on the child, then print the operator
-            Node::UnaryExpr { op, child } => ret.push_str(&*format!("{}{:?}", Node::print_rpn(child), op)),
+            Node::UnaryExpr { op, child } => {
+                ret.push_str(&*format!("{}{:?}", Node::print_rpn(child), op))
+            }
             // for a binary expression, first recurse on the lhs, then recurse on the rhs, then print the operator
-            Node::BinaryExpr { op, lhs, rhs } => ret.push_str(&*format!("{}{}{:?}", Node::print_rpn(lhs), Node::print_rpn(rhs), op)),
+            Node::BinaryExpr { op, lhs, rhs } => ret.push_str(&*format!(
+                "{}{}{:?}",
+                Node::print_rpn(lhs),
+                Node::print_rpn(rhs),
+                op
+            )),
         }
         ret
     }

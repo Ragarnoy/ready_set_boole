@@ -1,6 +1,6 @@
+use boolean_evaluation::node::Node;
 use std::fmt::{Display, Formatter};
 use std::str::FromStr;
-use boolean_evaluation::node::Node;
 
 const VALID_TOKENS: &[char] = &['1', '0', '!', '&', '^', '=', '|', '>'];
 
