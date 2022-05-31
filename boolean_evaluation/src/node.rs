@@ -1,6 +1,3 @@
-mod nnf;
-
-use crate::node::nnf::negation_normal_form;
 use crate::operator::Operator;
 use std::fmt;
 use std::fmt::{Display, Formatter};
@@ -106,10 +103,6 @@ impl Node {
             }
             Node::UnaryExpr { op, child } => eval_unary(op, child.compute_node()),
         }
-    }
-
-    pub fn nnf(self) -> Self {
-        negation_normal_form(self)
     }
 
     pub fn print_rpn(&self) -> String {
