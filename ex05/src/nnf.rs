@@ -154,7 +154,6 @@ mod nnf_test {
     fn test_nnf_imply() {
         let node = Node::from_str("AB>").unwrap();
         let result = Node::from_str("A!B|").unwrap();
-        println!("{}", node_to_negation_normal_form(node.clone()));
         assert_eq!(node_to_negation_normal_form(node), result);
     }
 

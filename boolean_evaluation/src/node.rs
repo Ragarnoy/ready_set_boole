@@ -152,63 +152,6 @@ impl Node {
     pub fn is_unary(&self) -> bool {
         matches!(self, Node::UnaryExpr { .. })
     }
-
-    pub fn negation_normal_form(&mut self) {
-        match self {
-            Node::UnaryExpr { child, .. } => {
-                if child.is_unary() {
-                    child.negation_normal_form();
-                }
-            }
-
-            Node::BinaryExpr { ref op, lhs, rhs } => {
-                if lhs.is_unary() {
-                    lhs.negation_normal_form();
-                }
-                if rhs.is_unary() {
-                    rhs.negation_normal_form();
-                }
-                match *op {
-                    Operator::Imply => {
-                        *self = Node::BinaryExpr {
-                            op: Operator::Or,
-                            lhs: Box::new(Node::UnaryExpr {
-                                op: Operator::Not,
-                                child: Box::new(*lhs.clone()),
-                            }),
-                            rhs: Box::new(*rhs.clone()),
-                        };
-                    }
-                    Operator::Xnor => {
-                        *self = Node::BinaryExpr {
-                            op: Operator::Or,
-                            lhs: Box::new(Node::BinaryExpr {
-                                op: Operator::And,
-                                lhs: Box::new(Node::UnaryExpr {
-                                    op: Operator::Not,
-                                    child: Box::new(*lhs.clone()),
-                                }),
-                                rhs: Box::new(*rhs.clone()),
-                            }),
-                            rhs: Box::new(Node::BinaryExpr {
-                                op: Operator::And,
-                                lhs: Box::new(*lhs.clone()),
-                                rhs: Box::new(Node::UnaryExpr {
-                                    op: Operator::Not,
-                                    child: Box::new(*rhs.clone()),
-                                }),
-                            }),
-                        };
-                    }
-                    Operator::And => {}
-                    Operator::Or => {}
-                    Operator::Xor => {}
-                    Operator::Not => {}
-                }
-            }
-            _ => {}
-        }
-    }
 }
 
 fn eval_binary(lhs: bool, op: Operator, rhs: bool) -> bool {
