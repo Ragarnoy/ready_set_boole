@@ -12,6 +12,7 @@ pub fn node_to_negation_normal_form(mut node: Node) -> Node {
         } => match *op {
             Operator::Imply => binary_expr_to_nnf(node),
             Operator::Xnor => binary_expr_to_nnf(node),
+            Operator::Xor => binary_expr_to_nnf(node),
             _ => {
                 *lhs = Box::new(node_to_negation_normal_form(*lhs.clone()));
                 *rhs = Box::new(node_to_negation_normal_form(*rhs.clone()));
@@ -42,6 +43,25 @@ pub fn binary_expr_to_nnf(node: Node) -> Node {
                 }),
                 rhs: Box::new(Node::BinaryExpr {
                     op: Operator::And,
+                    lhs: Box::new(Node::UnaryExpr {
+                        op: Operator::Not,
+                        child: Box::new(node_to_negation_normal_form(*lhs)),
+                    }),
+                    rhs: Box::new(Node::UnaryExpr {
+                        op: Operator::Not,
+                        child: Box::new(node_to_negation_normal_form(*rhs)),
+                    }),
+                }),
+            },
+            Operator::Xor => Node::BinaryExpr {
+                op: Operator::And,
+                lhs: Box::new(Node::BinaryExpr {
+                    op: Operator::Or,
+                    lhs: Box::new(node_to_negation_normal_form(*lhs.clone())),
+                    rhs: Box::new(node_to_negation_normal_form(*rhs.clone())),
+                }),
+                rhs: Box::new(Node::BinaryExpr {
+                    op: Operator::Or,
                     lhs: Box::new(Node::UnaryExpr {
                         op: Operator::Not,
                         child: Box::new(node_to_negation_normal_form(*lhs)),
@@ -161,6 +181,13 @@ mod nnf_test {
     fn test_nnf_xnor() {
         let node = Node::from_str("AB=").unwrap();
         let result = Node::from_str("AB&A!B!&|").unwrap();
+        assert_eq!(node_to_negation_normal_form(node), result);
+    }
+
+    #[test]
+    fn test_nnf_xor() {
+        let node = Node::from_str("AB^").unwrap();
+        let result = Node::from_str("AB|A!B!|&").unwrap();
         assert_eq!(node_to_negation_normal_form(node), result);
     }
 
