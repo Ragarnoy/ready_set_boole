@@ -1,5 +1,5 @@
-use boolean_evaluation::node::Node;
-use boolean_evaluation::operator::Operator;
+use crate::node::Node;
+use crate::operator::Operator;
 
 pub fn node_to_negation_normal_form(mut node: Node) -> Node {
     match node {
@@ -157,8 +157,8 @@ pub fn unary_expr_to_nnf(node: Node) -> Node {
 
 #[cfg(test)]
 mod nnf_test {
-    use crate::nnf::{node_to_negation_normal_form, unary_expr_to_nnf};
-    use boolean_evaluation::node::Node;
+    use boolean_evaluation::nnf::{node_to_negation_normal_form, unary_expr_to_nnf};
+    use crate::node::Node;
     use std::str::FromStr;
 
     #[test]
