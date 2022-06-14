@@ -10,14 +10,12 @@ pub fn node_to_negation_normal_form(mut node: Node) -> Node {
             ref mut lhs,
             ref mut rhs,
         } => match *op {
-            Operator::Imply => binary_expr_to_nnf(node),
-            Operator::Xnor => binary_expr_to_nnf(node),
-            Operator::Xor => binary_expr_to_nnf(node),
-            _ => {
+            Operator::And | Operator::Or => {
                 *lhs = Box::new(node_to_negation_normal_form(*lhs.clone()));
                 *rhs = Box::new(node_to_negation_normal_form(*rhs.clone()));
                 node.clone()
-            }
+            },
+            _ => binary_expr_to_nnf(node),
         },
         _ => node,
     }
