@@ -160,6 +160,7 @@ mod nnf_test {
     use boolean_evaluation::nnf::{node_to_negation_normal_form, unary_expr_to_nnf};
     use crate::node::Node;
     use std::str::FromStr;
+    use crate::nnf::{node_to_negation_normal_form, unary_expr_to_nnf};
 
     #[test]
     fn test_nnf_not_and() {
