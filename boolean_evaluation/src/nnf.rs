@@ -1,22 +1,19 @@
 use crate::node::Node;
 use crate::operator::Operator;
 
-pub fn node_to_negation_normal_form(mut node: Node) -> Node {
+pub fn node_to_negation_normal_form(node: Node) -> Node {
     match node {
         Node::UnaryExpr { .. } => unary_expr_to_nnf(node),
-
         Node::BinaryExpr {
-            ref op,
-            ref mut lhs,
-            ref mut rhs,
-        } => match *op {
-            Operator::And | Operator::Or => {
-                *lhs = Box::new(node_to_negation_normal_form(*lhs.clone()));
-                *rhs = Box::new(node_to_negation_normal_form(*rhs.clone()));
-                node.clone()
-            },
-            _ => binary_expr_to_nnf(node),
-        },
+            op: op @ (Operator::And | Operator::Or),
+            mut lhs,
+            mut rhs,
+        } => {
+            *lhs = node_to_negation_normal_form(*lhs);
+            *rhs = node_to_negation_normal_form(*rhs);
+            Node::BinaryExpr { op, lhs, rhs }
+        }
+        Node::BinaryExpr { .. } => binary_expr_to_nnf(node),
         _ => node,
     }
 }
