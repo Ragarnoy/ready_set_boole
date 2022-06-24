@@ -3,7 +3,7 @@ use crate::node::Node;
 use crate::operator::Operator;
 
 pub fn node_to_cnf(node: Node) -> Node {
-    let nnf = node_to_negation_normal_form(node);
+    let mut nnf = node_to_negation_normal_form(node);
     match nnf {
         Node::UnaryExpr { .. } => node_to_cnf(nnf),
         Node::BinaryExpr {
@@ -11,17 +11,26 @@ pub fn node_to_cnf(node: Node) -> Node {
             ref mut lhs,
             ref mut rhs,
         } => match *op {
-            Operator::And | Operator::Or => {
-                *lhs = Box::new(node_to_cnf(*lhs.clone()));
-                *rhs = Box::new(node_to_cnf(*rhs.clone()));
-                node.clone()
+            Operator::Or => {
+                cnf_handle_or(*lhs.clone());
+                cnf_handle_or(*rhs.clone());
+                nnf.clone()
             },
-            _ => binary_expr_to_cnf(node),
+            Operator::And => {
+                cnf_handle_and(*lhs.clone());
+                cnf_handle_and(*rhs.clone());
+                nnf.clone()
+            },
+            _ => node_to_cnf(nnf),
         },
         _ => nnf,
     }
 }
 
-fn cnf_handle_or(node: Node) -> {
+fn cnf_handle_or(node: Node) -> Node {
+    todo!()
+}
 
+fn cnf_handle_and(node: Node) -> Node {
+    todo!()
 }
