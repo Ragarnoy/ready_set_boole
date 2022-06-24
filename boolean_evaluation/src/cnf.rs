@@ -3,34 +3,26 @@ use crate::node::Node;
 use crate::operator::Operator;
 
 pub fn node_to_cnf(node: Node) -> Node {
-    let mut nnf = node_to_negation_normal_form(node);
-    match nnf {
-        Node::UnaryExpr { .. } => node_to_cnf(nnf),
-        Node::BinaryExpr {
-            ref op,
-            ref mut lhs,
-            ref mut rhs,
-        } => match *op {
-            Operator::Or => {
-                cnf_handle_or(*lhs.clone());
-                cnf_handle_or(*rhs.clone());
-                nnf.clone()
+    if let Node::BinaryExpr { op, lhs, rhs } = node_to_negation_normal_form(node.clone()) {
+        match op {
+            Operator::And => Node::BinaryExpr {
+                op: Operator::And,
+                lhs: Box::new(node_to_cnf(*lhs)),
+                rhs: Box::new(node_to_cnf(*rhs)),
             },
-            Operator::And => {
-                cnf_handle_and(*lhs.clone());
-                cnf_handle_and(*rhs.clone());
-                nnf.clone()
+            Operator::Or => Node::BinaryExpr {
+                op: Operator::And,
+                lhs: Box::new(node_to_cnf(*lhs)),
+                rhs: Box::new(node_to_cnf(*rhs)),
             },
-            _ => node_to_cnf(nnf),
-        },
-        _ => nnf,
+            _ => unreachable!(),
+        }
+    } else {
+        node
     }
 }
 
-fn cnf_handle_or(node: Node) -> Node {
-    todo!()
-}
-
-fn cnf_handle_and(node: Node) -> Node {
+// Distribute conjunctions over disjunctions.
+fn distribute(factor: Node, node: Node) -> Node {
     todo!()
 }
