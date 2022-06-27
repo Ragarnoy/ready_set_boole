@@ -64,7 +64,7 @@ pub fn node_to_cnf(node: Node) -> Node {
 // Distribute conjunctions over disjunctions.
 fn distribute_both(node: Node) -> Node {
     if let Node::BinaryExpr { op: Operator::Or, lhs, rhs } = node {
-        match (*rhs, *lhs) {
+        match (*lhs, *rhs) {
             (
                 Node::BinaryExpr {
                     op: Operator::And,
@@ -131,6 +131,7 @@ mod cnf_test {
     fn distribute_both() {
         let node = Node::from_str("AB&CD&|").unwrap();
         let result = Node::from_str("AC|AD|&BC|BD|&&").unwrap();
+        println!("{}", node_to_cnf(node.clone()).print_rpn());
         assert_eq!(node_to_cnf(node), result);
     }
 }
