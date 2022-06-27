@@ -49,22 +49,22 @@ pub fn binary_expr_to_nnf(node: Node) -> Node {
                 }),
             },
             Operator::Xor => Node::BinaryExpr {
-                op: Operator::And,
+                op: Operator::Or,
                 lhs: Box::new(Node::BinaryExpr {
-                    op: Operator::Or,
-                    lhs: Box::new(node_to_negation_normal_form(*lhs.clone())),
+                    op: Operator::And,
+                    lhs: Box::new(node_to_negation_normal_form(Node::UnaryExpr {
+                        op: Operator::Not,
+                        child: Box::new(*lhs.clone()),
+                    })),
                     rhs: Box::new(node_to_negation_normal_form(*rhs.clone())),
                 }),
                 rhs: Box::new(Node::BinaryExpr {
-                    op: Operator::Or,
-                    lhs: Box::new(Node::UnaryExpr {
+                    op: Operator::And,
+                    lhs: Box::new(node_to_negation_normal_form(*lhs)),
+                    rhs: Box::new(node_to_negation_normal_form(Node::UnaryExpr {
                         op: Operator::Not,
-                        child: Box::new(node_to_negation_normal_form(*lhs)),
-                    }),
-                    rhs: Box::new(Node::UnaryExpr {
-                        op: Operator::Not,
-                        child: Box::new(node_to_negation_normal_form(*rhs)),
-                    }),
+                        child: Box::new(*rhs),
+                    })),
                 }),
             },
             _ => unreachable!(),
@@ -93,9 +93,23 @@ pub fn unary_expr_to_nnf(node: Node) -> Node {
                 },
 
                 Operator::Xnor => Node::BinaryExpr {
-                    op: Operator::Xor,
-                    lhs: Box::new(node_to_negation_normal_form(*lhs)),
-                    rhs: Box::new(node_to_negation_normal_form(*rhs)),
+                    op: Operator::Or,
+                    lhs: Box::new(Node::BinaryExpr {
+                        op: Operator::And,
+                        lhs: Box::new(node_to_negation_normal_form(Node::UnaryExpr {
+                            op: Operator::Not,
+                            child: Box::new(*lhs.clone()),
+                        })),
+                        rhs: Box::new(node_to_negation_normal_form(*rhs.clone())),
+                    }),
+                    rhs: Box::new(Node::BinaryExpr {
+                        op: Operator::And,
+                        lhs: Box::new(node_to_negation_normal_form(*lhs)),
+                        rhs: Box::new(node_to_negation_normal_form(Node::UnaryExpr {
+                            op: Operator::Not,
+                            child: Box::new(*rhs),
+                        })),
+                    }),
                 },
 
                 Operator::And => Node::BinaryExpr {
@@ -124,7 +138,7 @@ pub fn unary_expr_to_nnf(node: Node) -> Node {
 
                 Operator::Xor => Node::BinaryExpr {
                     op: Operator::Or,
-                    lhs: Box::new(node_to_negation_normal_form(Node::BinaryExpr {
+                    lhs: Box::new(node_to_negation_normal_form(Node::BinaryExpr { 
                         op: Operator::And,
                         lhs: Box::new(Node::UnaryExpr {
                             op: Operator::Not,
@@ -185,7 +199,7 @@ mod nnf_test {
     #[test]
     fn test_nnf_xor() {
         let node = Node::from_str("AB^").unwrap();
-        let result = Node::from_str("AB|A!B!|&").unwrap();
+        let result = Node::from_str("A!B&AB!&|").unwrap();
         assert_eq!(node_to_negation_normal_form(node), result);
     }
 
