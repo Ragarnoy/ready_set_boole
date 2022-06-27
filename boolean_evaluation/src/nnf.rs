@@ -75,38 +75,38 @@ pub fn binary_expr_to_nnf(node: Node) -> Node {
 }
 
 pub fn unary_expr_to_nnf(node: Node) -> Node {
-    match node {
-        Node::UnaryExpr { ref child, .. } => match &**child {
-            Node::UnaryExpr { ref child, .. } => node_to_negation_normal_form(*child.clone()),
+    if let Node::UnaryExpr { child, .. } = node {
+        match *child {
+            Node::UnaryExpr { child, .. } => node_to_negation_normal_form(*child),
             Node::BinaryExpr {
-                ref op,
-                ref lhs,
-                ref rhs,
+                op,
+                lhs,
+                rhs,
             } => match op {
                 Operator::Imply => Node::BinaryExpr {
                     op: Operator::Or,
                     lhs: Box::new(node_to_negation_normal_form(Node::UnaryExpr {
                         op: Operator::Not,
-                        child: Box::new(*lhs.clone()),
+                        child: Box::new(*lhs),
                     })),
-                    rhs: Box::new(node_to_negation_normal_form(*rhs.clone())),
+                    rhs: Box::new(node_to_negation_normal_form(*rhs)),
                 },
 
                 Operator::Xnor => Node::BinaryExpr {
                     op: Operator::Xor,
-                    lhs: Box::new(node_to_negation_normal_form(*lhs.clone())),
-                    rhs: Box::new(node_to_negation_normal_form(*rhs.clone())),
+                    lhs: Box::new(node_to_negation_normal_form(*lhs)),
+                    rhs: Box::new(node_to_negation_normal_form(*rhs)),
                 },
 
                 Operator::And => Node::BinaryExpr {
                     op: Operator::Or,
                     lhs: Box::new(node_to_negation_normal_form(Node::UnaryExpr {
                         op: Operator::Not,
-                        child: Box::new(*lhs.clone()),
+                        child: Box::new(*lhs),
                     })),
                     rhs: Box::new(node_to_negation_normal_form(Node::UnaryExpr {
                         op: Operator::Not,
-                        child: Box::new(*rhs.clone()),
+                        child: Box::new(*rhs),
                     })),
                 },
 
@@ -114,11 +114,11 @@ pub fn unary_expr_to_nnf(node: Node) -> Node {
                     op: Operator::And,
                     lhs: Box::new(node_to_negation_normal_form(Node::UnaryExpr {
                         op: Operator::Not,
-                        child: Box::new(*lhs.clone()),
+                        child: Box::new(*lhs),
                     })),
                     rhs: Box::new(node_to_negation_normal_form(Node::UnaryExpr {
                         op: Operator::Not,
-                        child: Box::new(*rhs.clone()),
+                        child: Box::new(*rhs),
                     })),
                 },
 
@@ -134,10 +134,10 @@ pub fn unary_expr_to_nnf(node: Node) -> Node {
                     })),
                     rhs: Box::new(node_to_negation_normal_form(Node::BinaryExpr {
                         op: Operator::And,
-                        lhs: Box::new(*lhs.clone()),
+                        lhs: Box::new(*lhs),
                         rhs: Box::new(Node::UnaryExpr {
                             op: Operator::Not,
-                            child: Box::new(*rhs.clone()),
+                            child: Box::new(*rhs),
                         }),
                     })),
                 },
@@ -145,19 +145,21 @@ pub fn unary_expr_to_nnf(node: Node) -> Node {
                     unreachable!();
                 }
             },
-            Node::Variable(_) => node,
-            Node::Constant(_) => node,
-        },
-        _ => unreachable!(),
+            _ => Node::UnaryExpr {
+                op: Operator::Not,
+                child,
+            },
+        }
+    } else {
+        unreachable!()
     }
 }
 
 #[cfg(test)]
 mod nnf_test {
-    use boolean_evaluation::nnf::{node_to_negation_normal_form, unary_expr_to_nnf};
+    use crate::nnf::{node_to_negation_normal_form, unary_expr_to_nnf};
     use crate::node::Node;
     use std::str::FromStr;
-    use crate::nnf::{node_to_negation_normal_form, unary_expr_to_nnf};
 
     #[test]
     fn test_nnf_not_and() {
