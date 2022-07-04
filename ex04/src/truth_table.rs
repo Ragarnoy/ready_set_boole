@@ -5,7 +5,7 @@ use std::str::FromStr;
 const VALID_TOKENS: &[char] = &['1', '0', '!', '&', '^', '=', '|', '>'];
 
 pub struct TruthTable {
-    variables: Vec<String>,
+    variables: Vec<char>,
     initial_formula: String,
 }
 
@@ -20,12 +20,11 @@ impl FromStr for TruthTable {
             return Err(String::from("Invalid tokens"));
         }
 
-        let mut variables: Vec<String> = s
+        let mut variables: Vec<char> = s
             .chars()
             .filter(|ch| ch.is_ascii_uppercase())
-            .map(|ch| ch.to_string())
             .collect();
-        variables.sort();
+        variables.sort_unstable();
         variables.dedup();
 
         Ok(TruthTable {
@@ -51,7 +50,7 @@ impl Display for TruthTable {
             let mut tmp_bodyline = header.clone();
             for (i, var) in self.variables.iter().rev().enumerate() {
                 tmp_formula = tmp_formula.replace(
-                    var,
+                    *var,
                     if bitfield & (1 << i as u32) == 0 {
                         "0"
                     } else {
@@ -59,7 +58,7 @@ impl Display for TruthTable {
                     },
                 );
                 tmp_bodyline = tmp_bodyline.replace(
-                    var,
+                    *var,
                     if bitfield & (1 << i as u32) == 0 {
                         "0"
                     } else {
