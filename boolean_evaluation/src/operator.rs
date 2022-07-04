@@ -8,7 +8,6 @@ pub enum Operator {
     Or,
     Xor,
     Imply,
-    /// Bi-conditional
     Xnor,
 }
 
