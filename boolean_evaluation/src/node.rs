@@ -1,13 +1,18 @@
+use std::borrow::Borrow;
+use std::cell::RefCell;
+use std::collections::HashMap;
 use crate::operator::Operator;
 use std::fmt;
 use std::fmt::{Display, Formatter};
+use std::rc::Rc;
 use std::str::FromStr;
+use crate::variable::Variable;
 
 const VALID_TOKENS: &[char] = &['1', '0', '!', '&', '^', '=', '|', '>'];
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Node {
-    Variable(char),
+    Variable(Rc<RefCell<Variable>>),
     Constant(bool),
     UnaryExpr {
         op: Operator,
@@ -25,7 +30,7 @@ impl Display for Node {
         let mut ret = String::new();
 
         match self {
-            Node::Variable(c) => ret.push(*c),
+            Node::Variable(c) => ret.push(c.borrow().name),
             Node::Constant(x) => ret.push(if *x { '1' } else { '0' }),
             Node::UnaryExpr { op, child } => ret.push_str(&*format!("{}{}", op, child)),
             Node::BinaryExpr { op, lhs, rhs } => ret.push_str(&*format!("{} {} {}", lhs, op, rhs)),
@@ -45,50 +50,61 @@ impl FromStr for Node {
             return Err(String::from("Invalid tokens"));
         }
 
-        let mut node_vec: Vec<Node> = Vec::with_capacity(50);
+        let mut node_stack: Vec<Node> = Vec::with_capacity(50);
+        let mut vec_alphabet_ref: Rc<RefCell<Vec<Option<Rc<RefCell<Variable>>>>>> = Rc::new(RefCell::new(vec![None; 26]));
+        let mut vec_alphabet: &mut Vec<Option<Rc<RefCell<Variable>>>> = vec_alphabet_ref.clone().get_mut();
 
         for c in s.chars() {
             let node = match c {
-                'A'..='Z' => Node::Variable(c),
+                'A'..='Z' => {
+                    let idx = c as usize - 'A' as usize;
+                    if let Some(v) = &vec_alphabet[idx] {
+                        Node::Variable(v.clone())
+                    } else {
+                        let v = Rc::new(RefCell::new(Variable::new(c, false)));
+                        vec_alphabet[idx] = Some(v.clone());
+                        Node::Variable(v)
+                    }
+                },
                 '1' => Node::Constant(true),
                 '0' => Node::Constant(false),
                 '&' => Node::BinaryExpr {
                     op: Operator::And,
-                    rhs: Box::new(node_vec.pop().expect("Invalid input")),
-                    lhs: Box::new(node_vec.pop().expect("Invalid input")),
+                    rhs: Box::new(node_stack.pop().expect("Invalid input")),
+                    lhs: Box::new(node_stack.pop().expect("Invalid input")),
                 },
                 '|' => Node::BinaryExpr {
                     op: Operator::Or,
-                    rhs: Box::new(node_vec.pop().expect("Invalid input")),
-                    lhs: Box::new(node_vec.pop().expect("Invalid input")),
+                    rhs: Box::new(node_stack.pop().expect("Invalid input")),
+                    lhs: Box::new(node_stack.pop().expect("Invalid input")),
                 },
                 '^' => Node::BinaryExpr {
                     op: Operator::Xor,
-                    rhs: Box::new(node_vec.pop().expect("Invalid input")),
-                    lhs: Box::new(node_vec.pop().expect("Invalid input")),
+                    rhs: Box::new(node_stack.pop().expect("Invalid input")),
+                    lhs: Box::new(node_stack.pop().expect("Invalid input")),
                 },
                 '>' => Node::BinaryExpr {
                     op: Operator::Imply,
-                    rhs: Box::new(node_vec.pop().expect("Invalid input")),
-                    lhs: Box::new(node_vec.pop().expect("Invalid input")),
+                    rhs: Box::new(node_stack.pop().expect("Invalid input")),
+                    lhs: Box::new(node_stack.pop().expect("Invalid input")),
                 },
                 '=' => Node::BinaryExpr {
                     op: Operator::Xnor,
-                    rhs: Box::new(node_vec.pop().expect("Invalid input")),
-                    lhs: Box::new(node_vec.pop().expect("Invalid input")),
+                    rhs: Box::new(node_stack.pop().expect("Invalid input")),
+                    lhs: Box::new(node_stack.pop().expect("Invalid input")),
                 },
                 '!' => Node::UnaryExpr {
                     op: Operator::Not,
-                    child: Box::new(node_vec.pop().expect("Invalid input")),
+                    child: Box::new(node_stack.pop().expect("Invalid input")),
                 },
                 _ => return Err("Invalid input".to_string()),
             };
-            node_vec.push(node);
+            node_stack.push(node);
         }
-        if node_vec.is_empty() {
+        if node_stack.is_empty() {
             Err("Empty input".to_string())
         } else {
-            Ok(node_vec.remove(0))
+            Ok(node_stack.remove(0))
         }
     }
 }
@@ -109,7 +125,7 @@ impl Node {
         let mut ret = String::new();
         match self {
             // for a variable or constant, just print the value
-            Node::Variable(c) => ret.push(*c),
+            Node::Variable(c) => ret.push(c.borrow().name),
             Node::Constant(x) => ret.push(if *x { '1' } else { '0' }),
             // for a unary expression, first recurse on the child, then print the operator
             Node::UnaryExpr { op, child } => {
