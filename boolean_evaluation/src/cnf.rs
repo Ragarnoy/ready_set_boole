@@ -1,52 +1,42 @@
 use crate::nnf::node_to_negation_normal_form;
 use crate::node::Node;
 use crate::operator::Operator;
+use Node::*;
+use Operator::*;
 
 pub fn node_to_cnf(node: Node) -> Node {
     let node = node_to_negation_normal_form(node);
-    if let Node::BinaryExpr { op, lhs, rhs } = node {
+    if let BinaryExpr { op, lhs, rhs } = node {
         match op {
-            Operator::And => Node::BinaryExpr {
-                op: Operator::And,
+            And => BinaryExpr {
+                op: And,
                 lhs: Box::new(node_to_cnf(*lhs)),
                 rhs: Box::new(node_to_cnf(*rhs)),
             },
-            Operator::Or => {
+            Or => {
                 let has_and = (
-                    matches!(
-                        *lhs,
-                        Node::BinaryExpr {
-                            op: Operator::And,
-                            ..
-                        }
-                    ),
-                    matches!(
-                        *rhs,
-                        Node::BinaryExpr {
-                            op: Operator::And,
-                            ..
-                        }
-                    ),
+                    matches!(*lhs, BinaryExpr { op: And, .. }),
+                    matches!(*rhs, BinaryExpr { op: And, .. }),
                 );
 
                 match has_and {
-                    (true, true) => distribute_both(Node::BinaryExpr {
-                        op: Operator::Or,
+                    (true, true) => distribute_both(BinaryExpr {
+                        op: Or,
                         lhs: Box::new(node_to_cnf(*lhs)),
                         rhs: Box::new(node_to_cnf(*rhs)),
                     }),
-                    (true, false) => distribute_to_left(Node::BinaryExpr {
-                        op: Operator::Or,
+                    (true, false) => distribute_to_left(BinaryExpr {
+                        op: Or,
                         lhs: Box::new(node_to_cnf(*lhs)),
                         rhs: Box::new(node_to_cnf(*rhs)),
                     }),
-                    (false, true) => distribute_to_right(Node::BinaryExpr {
-                        op: Operator::Or,
+                    (false, true) => distribute_to_right(BinaryExpr {
+                        op: Or,
                         lhs: Box::new(node_to_cnf(*lhs)),
                         rhs: Box::new(node_to_cnf(*rhs)),
                     }),
-                    _ => Node::BinaryExpr {
-                        op: Operator::Or,
+                    _ => BinaryExpr {
+                        op: Or,
                         lhs: Box::new(node_to_cnf(*lhs)),
                         rhs: Box::new(node_to_cnf(*rhs)),
                     },
@@ -61,7 +51,7 @@ pub fn node_to_cnf(node: Node) -> Node {
 
 // Distribute conjunctions over disjunctions.
 fn distribute_both(node: Node) -> Node {
-    if let Node::BinaryExpr {
+    if let BinaryExpr {
         op: Operator::Or,
         lhs,
         rhs,
@@ -69,40 +59,40 @@ fn distribute_both(node: Node) -> Node {
     {
         match (*lhs, *rhs) {
             (
-                Node::BinaryExpr {
-                    op: Operator::And,
+                BinaryExpr {
+                    op: And,
                     lhs: lhs_lhs,
                     rhs: lhs_rhs,
                 },
-                Node::BinaryExpr {
-                    op: Operator::And,
+                BinaryExpr {
+                    op: And,
                     lhs: rhs_lhs,
                     rhs: rhs_rhs,
                 },
-            ) => Node::BinaryExpr {
-                op: Operator::And,
-                lhs: Box::new(Node::BinaryExpr {
-                    op: Operator::And,
-                    lhs: Box::new(node_to_cnf(Node::BinaryExpr {
-                        op: Operator::Or,
+            ) => BinaryExpr {
+                op: And,
+                lhs: Box::new(BinaryExpr {
+                    op: And,
+                    lhs: Box::new(node_to_cnf(BinaryExpr {
+                        op: Or,
                         lhs: Box::new(*lhs_lhs.clone()),
                         rhs: Box::new(*rhs_lhs.clone()),
                     })),
-                    rhs: Box::new(node_to_cnf(Node::BinaryExpr {
-                        op: Operator::Or,
+                    rhs: Box::new(node_to_cnf(BinaryExpr {
+                        op: Or,
                         lhs: Box::new(*lhs_lhs),
                         rhs: Box::new(*rhs_rhs.clone()),
                     })),
                 }),
-                rhs: Box::new(Node::BinaryExpr {
-                    op: Operator::And,
-                    lhs: Box::new(node_to_cnf(Node::BinaryExpr {
-                        op: Operator::Or,
+                rhs: Box::new(BinaryExpr {
+                    op: And,
+                    lhs: Box::new(node_to_cnf(BinaryExpr {
+                        op: Or,
                         lhs: Box::new(*lhs_rhs.clone()),
                         rhs: Box::new(*rhs_lhs),
                     })),
-                    rhs: Box::new(node_to_cnf(Node::BinaryExpr {
-                        op: Operator::Or,
+                    rhs: Box::new(node_to_cnf(BinaryExpr {
+                        op: Or,
                         lhs: Box::new(*lhs_rhs),
                         rhs: Box::new(*rhs_rhs),
                     })),
@@ -116,26 +106,26 @@ fn distribute_both(node: Node) -> Node {
 }
 
 fn distribute_to_left(node: Node) -> Node {
-    if let Node::BinaryExpr {
+    if let BinaryExpr {
         op: Operator::Or,
         lhs,
         rhs,
     } = node
     {
         match *lhs {
-            Node::BinaryExpr {
-                op: Operator::And,
+            BinaryExpr {
+                op: And,
                 lhs: lhs_lhs,
                 rhs: lhs_rhs,
-            } => Node::BinaryExpr {
-                op: Operator::And,
-                lhs: Box::new(node_to_cnf(Node::BinaryExpr {
-                    op: Operator::Or,
+            } => BinaryExpr {
+                op: And,
+                lhs: Box::new(node_to_cnf(BinaryExpr {
+                    op: Or,
                     lhs: Box::new(*lhs_lhs),
                     rhs: Box::new(*rhs.clone()),
                 })),
-                rhs: Box::new(node_to_cnf(Node::BinaryExpr {
-                    op: Operator::Or,
+                rhs: Box::new(node_to_cnf(BinaryExpr {
+                    op: Or,
                     lhs: Box::new(*lhs_rhs),
                     rhs: Box::new(*rhs),
                 })),
@@ -148,26 +138,21 @@ fn distribute_to_left(node: Node) -> Node {
 }
 
 fn distribute_to_right(node: Node) -> Node {
-    if let Node::BinaryExpr {
-        op: Operator::Or,
-        lhs,
-        rhs,
-    } = node
-    {
+    if let BinaryExpr { op: Or, lhs, rhs } = node {
         match *rhs {
-            Node::BinaryExpr {
-                op: Operator::And,
+            BinaryExpr {
+                op: And,
                 lhs: rhs_lhs,
                 rhs: rhs_rhs,
-            } => Node::BinaryExpr {
-                op: Operator::And,
-                lhs: Box::new(node_to_cnf(Node::BinaryExpr {
-                    op: Operator::Or,
+            } => BinaryExpr {
+                op: And,
+                lhs: Box::new(node_to_cnf(BinaryExpr {
+                    op: Or,
                     lhs: Box::new(*lhs.clone()),
                     rhs: Box::new(*rhs_lhs),
                 })),
-                rhs: Box::new(node_to_cnf(Node::BinaryExpr {
-                    op: Operator::Or,
+                rhs: Box::new(node_to_cnf(BinaryExpr {
+                    op: Or,
                     lhs: Box::new(*lhs),
                     rhs: Box::new(*rhs_rhs),
                 })),
@@ -187,7 +172,9 @@ mod cnf_test {
 
     #[test]
     fn basic_node_to_cnf() {
-        let node = Node::from_str("").unwrap();
+        let node = Node::from_str("ABC|DE&&|").unwrap();
+        let result = Node::from_str("ABC||AD|AE|&&").unwrap();
+        assert_eq!(node_to_cnf(node), result);
     }
 
     #[test]
