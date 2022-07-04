@@ -16,6 +16,3 @@ fn main() {
         print_truth_table("AB&C|");
     }
 }
-
-#[cfg(test)]
-mod test_truth_table {}
