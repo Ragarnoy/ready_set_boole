@@ -1,7 +1,6 @@
-use boolean_evaluation::node::Node;
+use boolean_evaluation::tree::Tree;
 use std::fmt::{Display, Formatter};
 use std::str::FromStr;
-use boolean_evaluation::tree::Tree;
 
 const VALID_TOKENS: &[char] = &['1', '0', '!', '&', '^', '=', '|', '>'];
 
@@ -21,10 +20,7 @@ impl FromStr for TruthTable {
             return Err(String::from("Invalid tokens"));
         }
 
-        let mut variables: Vec<char> = s
-            .chars()
-            .filter(|ch| ch.is_ascii_uppercase())
-            .collect();
+        let mut variables: Vec<char> = s.chars().filter(|ch| ch.is_ascii_uppercase()).collect();
         variables.sort_unstable();
         variables.dedup();
 

@@ -157,10 +157,7 @@ pub fn unary_expr_to_nnf(node: Node) -> Node {
                     unreachable!();
                 }
             },
-            _ => UnaryExpr {
-                op: Not,
-                child,
-            },
+            _ => UnaryExpr { op: Not, child },
         }
     } else {
         unreachable!()
@@ -170,9 +167,9 @@ pub fn unary_expr_to_nnf(node: Node) -> Node {
 #[cfg(test)]
 mod nnf_test {
     use crate::nnf::{node_to_negation_normal_form, unary_expr_to_nnf};
-    use crate::node::Node;
-    use std::str::FromStr;
+
     use crate::tree::Tree;
+    use std::str::FromStr;
 
     #[test]
     fn test_nnf_not_and() {
@@ -219,16 +216,28 @@ mod nnf_test {
     #[test]
     fn test_not_unary_odd() {
         let three = Tree::from_str("1!!!").unwrap();
-        assert_eq!(unary_expr_to_nnf(three.root), Tree::from_str("1!").unwrap().root);
+        assert_eq!(
+            unary_expr_to_nnf(three.root),
+            Tree::from_str("1!").unwrap().root
+        );
         let five = Tree::from_str("1!!!!!").unwrap();
-        assert_eq!(unary_expr_to_nnf(five.root), Tree::from_str("1!").unwrap().root);
+        assert_eq!(
+            unary_expr_to_nnf(five.root),
+            Tree::from_str("1!").unwrap().root
+        );
     }
 
     #[test]
     fn test_not_unary_even() {
         let two = Tree::from_str("1!!").unwrap();
-        assert_eq!(unary_expr_to_nnf(two.root), Tree::from_str("1").unwrap().root);
+        assert_eq!(
+            unary_expr_to_nnf(two.root),
+            Tree::from_str("1").unwrap().root
+        );
         let four = Tree::from_str("1!!!!").unwrap();
-        assert_eq!(unary_expr_to_nnf(four.root), Tree::from_str("1").unwrap().root);
+        assert_eq!(
+            unary_expr_to_nnf(four.root),
+            Tree::from_str("1").unwrap().root
+        );
     }
 }

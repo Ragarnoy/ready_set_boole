@@ -167,8 +167,8 @@ fn distribute_to_right(node: Node) -> Node {
 #[cfg(test)]
 mod cnf_test {
     use crate::cnf::{distribute_both, distribute_to_left, distribute_to_right, node_to_cnf};
-    use std::str::FromStr;
     use crate::tree::Tree;
+    use std::str::FromStr;
 
     #[test]
     fn basic_node_to_cnf() {

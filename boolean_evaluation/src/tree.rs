@@ -1,9 +1,11 @@
-use std::cell::{RefCell};
-use std::rc::Rc;
-use std::str::FromStr;
 use crate::node::Node;
 use crate::operator::Operator;
 use crate::variable::Variable;
+use std::cell::RefCell;
+use std::rc::Rc;
+use std::str::FromStr;
+use Node::*;
+use Operator::*;
 
 pub type VariableRef = Rc<RefCell<Variable>>;
 pub type VariableRefList = Vec<Option<VariableRef>>;
@@ -25,7 +27,6 @@ impl FromStr for Tree {
             return Err(String::from("Invalid tokens"));
         }
 
-
         let mut node_stack: Vec<Node> = Vec::with_capacity(50);
         let mut vec_alphabet: VariableRefList = vec![None; 26];
 
@@ -34,42 +35,42 @@ impl FromStr for Tree {
                 'A'..='Z' => {
                     let idx = c as usize - 'A' as usize;
                     if let Some(v) = &vec_alphabet[idx] {
-                        Node::Variable(v.clone())
+                        Variable(v.clone())
                     } else {
                         let v = Rc::new(RefCell::new(Variable::new(c, false)));
                         vec_alphabet[idx] = Some(v.clone());
-                        Node::Variable(v)
+                        Variable(v)
                     }
-                },
-                '1' => Node::Constant(true),
-                '0' => Node::Constant(false),
-                '&' => Node::BinaryExpr {
-                    op: Operator::And,
+                }
+                '1' => Constant(true),
+                '0' => Constant(false),
+                '&' => BinaryExpr {
+                    op: And,
                     rhs: Box::new(node_stack.pop().expect("Invalid input")),
                     lhs: Box::new(node_stack.pop().expect("Invalid input")),
                 },
-                '|' => Node::BinaryExpr {
-                    op: Operator::Or,
+                '|' => BinaryExpr {
+                    op: Or,
                     rhs: Box::new(node_stack.pop().expect("Invalid input")),
                     lhs: Box::new(node_stack.pop().expect("Invalid input")),
                 },
-                '^' => Node::BinaryExpr {
-                    op: Operator::Xor,
+                '^' => BinaryExpr {
+                    op: Xor,
                     rhs: Box::new(node_stack.pop().expect("Invalid input")),
                     lhs: Box::new(node_stack.pop().expect("Invalid input")),
                 },
-                '>' => Node::BinaryExpr {
-                    op: Operator::Imply,
+                '>' => BinaryExpr {
+                    op: Imply,
                     rhs: Box::new(node_stack.pop().expect("Invalid input")),
                     lhs: Box::new(node_stack.pop().expect("Invalid input")),
                 },
-                '=' => Node::BinaryExpr {
-                    op: Operator::Xnor,
+                '=' => BinaryExpr {
+                    op: Xnor,
                     rhs: Box::new(node_stack.pop().expect("Invalid input")),
                     lhs: Box::new(node_stack.pop().expect("Invalid input")),
                 },
-                '!' => Node::UnaryExpr {
-                    op: Operator::Not,
+                '!' => UnaryExpr {
+                    op: Not,
                     child: Box::new(node_stack.pop().expect("Invalid input")),
                 },
                 _ => return Err("Invalid input".to_string()),
@@ -78,8 +79,7 @@ impl FromStr for Tree {
         }
         if node_stack.len() != 1 {
             Err("Invalid input".to_string())
-        }
-        else {
+        } else {
             Ok(Self {
                 root: node_stack.remove(0),
                 variable_list: if s.contains(char::is_alphabetic) {

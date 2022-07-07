@@ -1,7 +1,7 @@
 use boolean_evaluation::nnf;
-use boolean_evaluation::node::Node;
-use std::str::FromStr;
+
 use boolean_evaluation::tree::Tree;
+use std::str::FromStr;
 
 fn negation_normal_form(formula: &str) -> String {
     let node = Tree::from_str(formula).unwrap();

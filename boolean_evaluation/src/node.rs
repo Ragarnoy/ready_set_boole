@@ -1,11 +1,11 @@
-use std::cell::RefCell;
 use crate::operator::Operator;
+use crate::variable::Variable;
+use std::cell::RefCell;
 use std::fmt;
 use std::fmt::{Display, Formatter};
 use std::rc::Rc;
-use crate::variable::Variable;
-
-const VALID_TOKENS: &[char] = &['1', '0', '!', '&', '^', '=', '|', '>'];
+use Node::*;
+use Operator::*;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Node {
@@ -27,10 +27,10 @@ impl Display for Node {
         let mut ret = String::new();
 
         match self {
-            Node::Variable(c) => ret.push(RefCell::borrow(c).name),
-            Node::Constant(x) => ret.push(if *x { '1' } else { '0' }),
-            Node::UnaryExpr { op, child } => ret.push_str(&*format!("{}{}", op, child)),
-            Node::BinaryExpr { op, lhs, rhs } => ret.push_str(&*format!("{} {} {}", lhs, op, rhs)),
+            Variable(c) => ret.push(RefCell::borrow(c).name),
+            Constant(x) => ret.push(if *x { '1' } else { '0' }),
+            UnaryExpr { op, child } => ret.push_str(&*format!("{}{}", op, child)),
+            BinaryExpr { op, lhs, rhs } => ret.push_str(&*format!("{} {} {}", lhs, op, rhs)),
         }
         write!(f, "{}", ret)
     }
@@ -39,12 +39,10 @@ impl Display for Node {
 impl Node {
     pub fn compute_node(self) -> bool {
         match self {
-            Node::Variable(_) => panic!("Variable node cannot be evaluated"),
-            Node::Constant(p) => p,
-            Node::BinaryExpr { op, lhs, rhs } => {
-                eval_binary(lhs.compute_node(), op, rhs.compute_node())
-            }
-            Node::UnaryExpr { op, child } => eval_unary(op, child.compute_node()),
+            Variable(_) => panic!("Variable node cannot be evaluated"),
+            Constant(p) => p,
+            BinaryExpr { op, lhs, rhs } => eval_binary(lhs.compute_node(), op, rhs.compute_node()),
+            UnaryExpr { op, child } => eval_unary(op, child.compute_node()),
         }
     }
 
@@ -52,17 +50,17 @@ impl Node {
         let mut ret = String::new();
         match self {
             // for a variable or constant, just print the value
-            Node::Variable(c) => ret.push(RefCell::borrow(c).name),
-            Node::Constant(x) => ret.push(if *x { '1' } else { '0' }),
+            Variable(c) => ret.push(RefCell::borrow(c).name),
+            Constant(x) => ret.push(if *x { '1' } else { '0' }),
             // for a unary expression, first recurse on the child, then print the operator
-            Node::UnaryExpr { op, child } => {
-                ret.push_str(&*format!("{}{:?}", Node::print_rpn(child), op))
+            UnaryExpr { op, child } => {
+                ret.push_str(&*format!("{}{:?}", Self::print_rpn(child), op))
             }
             // for a binary expression, first recurse on the lhs, then recurse on the rhs, then print the operator
-            Node::BinaryExpr { op, lhs, rhs } => ret.push_str(&*format!(
+            BinaryExpr { op, lhs, rhs } => ret.push_str(&*format!(
                 "{}{}{:?}",
-                Node::print_rpn(lhs),
-                Node::print_rpn(rhs),
+                Self::print_rpn(lhs),
+                Self::print_rpn(rhs),
                 op
             )),
         }
@@ -72,27 +70,26 @@ impl Node {
 
 fn eval_binary(lhs: bool, op: Operator, rhs: bool) -> bool {
     match op {
-        Operator::Imply => !lhs | rhs,
-        Operator::Xnor => lhs == rhs,
-        Operator::And => lhs & rhs,
-        Operator::Xor => lhs ^ rhs,
-        Operator::Or => lhs | rhs,
+        Imply => !lhs | rhs,
+        Xnor => lhs == rhs,
+        And => lhs & rhs,
+        Xor => lhs ^ rhs,
+        Or => lhs | rhs,
         _ => unreachable!(),
     }
 }
 
 fn eval_unary(op: Operator, child: bool) -> bool {
     match op {
-        Operator::Not => !child,
+        Not => !child,
         _ => unreachable!(),
     }
 }
 
 #[cfg(test)]
 mod node_tests {
-    use crate::node::Node;
-    use std::str::FromStr;
     use crate::tree::Tree;
+    use std::str::FromStr;
 
     #[test]
     // lots of rpn tests
