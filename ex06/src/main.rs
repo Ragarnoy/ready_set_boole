@@ -1,10 +1,10 @@
 use boolean_evaluation::cnf::node_to_cnf;
-use boolean_evaluation::node::Node;
 use std::str::FromStr;
+use boolean_evaluation::tree::Tree;
 
 fn conjunctive_normal_form(formula: &str) -> String {
-    let node = Node::from_str(formula).unwrap();
-    node_to_cnf(node).print_rpn()
+    let node = Tree::from_str(formula).unwrap();
+    node_to_cnf(node.root).print_rpn()
 }
 
 fn main() {

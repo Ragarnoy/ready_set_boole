@@ -172,62 +172,63 @@ mod nnf_test {
     use crate::nnf::{node_to_negation_normal_form, unary_expr_to_nnf};
     use crate::node::Node;
     use std::str::FromStr;
+    use crate::tree::Tree;
 
     #[test]
     fn test_nnf_not_and() {
-        let node = Node::from_str("AB&!").unwrap();
-        let result = Node::from_str("A!B!|").unwrap();
-        assert_eq!(node_to_negation_normal_form(node), result);
+        let node = Tree::from_str("AB&!").unwrap();
+        let result = Tree::from_str("A!B!|").unwrap();
+        assert_eq!(node_to_negation_normal_form(node.root), result.root);
     }
 
     #[test]
     fn test_nnf_imply() {
-        let node = Node::from_str("AB>").unwrap();
-        let result = Node::from_str("A!B|").unwrap();
-        assert_eq!(node_to_negation_normal_form(node), result);
+        let node = Tree::from_str("AB>").unwrap();
+        let result = Tree::from_str("A!B|").unwrap();
+        assert_eq!(node_to_negation_normal_form(node.root), result.root);
     }
 
     #[test]
     fn test_nnf_xnor() {
-        let node = Node::from_str("AB=").unwrap();
-        let result = Node::from_str("AB&A!B!&|").unwrap();
-        assert_eq!(node_to_negation_normal_form(node), result);
+        let node = Tree::from_str("AB=").unwrap();
+        let result = Tree::from_str("AB&A!B!&|").unwrap();
+        assert_eq!(node_to_negation_normal_form(node.root), result.root);
     }
 
     #[test]
     fn test_nnf_xor() {
-        let node = Node::from_str("AB^").unwrap();
-        let result = Node::from_str("A!B&AB!&|").unwrap();
-        assert_eq!(node_to_negation_normal_form(node), result);
+        let node = Tree::from_str("AB^").unwrap();
+        let result = Tree::from_str("A!B&AB!&|").unwrap();
+        assert_eq!(node_to_negation_normal_form(node.root), result.root);
     }
 
     #[test]
     fn test_nnf_complex() {
-        let node = Node::from_str("AB|C&!").unwrap();
-        let result = Node::from_str("A!B!&C!|").unwrap();
-        assert_eq!(node_to_negation_normal_form(node), result);
+        let node = Tree::from_str("AB|C&!").unwrap();
+        let result = Tree::from_str("A!B!&C!|").unwrap();
+        assert_eq!(node_to_negation_normal_form(node.root), result.root);
     }
 
     #[test]
     fn test_nnf_not_or() {
-        let node = Node::from_str("AB|!").unwrap();
-        let result = Node::from_str("A!B!&").unwrap();
-        assert_eq!(node_to_negation_normal_form(node), result);
+        let node = Tree::from_str("AB|!").unwrap();
+        let result = Tree::from_str("A!B!&").unwrap();
+        assert_eq!(node_to_negation_normal_form(node.root), result.root);
     }
 
     #[test]
     fn test_not_unary_odd() {
-        let three = Node::from_str("1!!!").unwrap();
-        assert_eq!(unary_expr_to_nnf(three), Node::from_str("1!").unwrap());
-        let five = Node::from_str("1!!!!!").unwrap();
-        assert_eq!(unary_expr_to_nnf(five), Node::from_str("1!").unwrap());
+        let three = Tree::from_str("1!!!").unwrap();
+        assert_eq!(unary_expr_to_nnf(three.root), Tree::from_str("1!").unwrap().root);
+        let five = Tree::from_str("1!!!!!").unwrap();
+        assert_eq!(unary_expr_to_nnf(five.root), Tree::from_str("1!").unwrap().root);
     }
 
     #[test]
     fn test_not_unary_even() {
-        let two = Node::from_str("1!!").unwrap();
-        assert_eq!(unary_expr_to_nnf(two), Node::from_str("1").unwrap());
-        let four = Node::from_str("1!!!!").unwrap();
-        assert_eq!(unary_expr_to_nnf(four), Node::from_str("1").unwrap());
+        let two = Tree::from_str("1!!").unwrap();
+        assert_eq!(unary_expr_to_nnf(two.root), Tree::from_str("1").unwrap().root);
+        let four = Tree::from_str("1!!!!").unwrap();
+        assert_eq!(unary_expr_to_nnf(four.root), Tree::from_str("1").unwrap().root);
     }
 }

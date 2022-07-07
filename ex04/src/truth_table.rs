@@ -1,6 +1,7 @@
 use boolean_evaluation::node::Node;
 use std::fmt::{Display, Formatter};
 use std::str::FromStr;
+use boolean_evaluation::tree::Tree;
 
 const VALID_TOKENS: &[char] = &['1', '0', '!', '&', '^', '=', '|', '>'];
 
@@ -66,7 +67,7 @@ impl Display for TruthTable {
                     },
                 );
             }
-            let result = Node::from_str(&*tmp_formula).unwrap().compute_node();
+            let result = Tree::from_str(&*tmp_formula).unwrap().root.compute_node();
             body.push_str(
                 format!(
                     "{}\n",

@@ -167,34 +167,34 @@ fn distribute_to_right(node: Node) -> Node {
 #[cfg(test)]
 mod cnf_test {
     use crate::cnf::{distribute_both, distribute_to_left, distribute_to_right, node_to_cnf};
-    use crate::node::Node;
     use std::str::FromStr;
+    use crate::tree::Tree;
 
     #[test]
     fn basic_node_to_cnf() {
-        let node = Node::from_str("ABC|DE&&|").unwrap();
-        let result = Node::from_str("ABC||AD|AE|&&").unwrap();
-        assert_eq!(node_to_cnf(node), result);
+        let node = Tree::from_str("ABC|DE&&|").unwrap();
+        let result = Tree::from_str("ABC||AD|AE|&&").unwrap();
+        assert_eq!(node_to_cnf(node.root), result.root);
     }
 
     #[test]
     fn basic_distribute_both() {
-        let node = Node::from_str("AB&CD&|").unwrap();
-        let result = Node::from_str("AC|AD|&BC|BD|&&").unwrap();
-        assert_eq!(distribute_both(node), result);
+        let node = Tree::from_str("AB&CD&|").unwrap();
+        let result = Tree::from_str("AC|AD|&BC|BD|&&").unwrap();
+        assert_eq!(distribute_both(node.root), result.root);
     }
 
     #[test]
     fn basic_distribute_left() {
-        let node = Node::from_str("AB&C|").unwrap();
-        let result = Node::from_str("AC|BC|&").unwrap();
-        assert_eq!(distribute_to_left(node), result);
+        let node = Tree::from_str("AB&C|").unwrap();
+        let result = Tree::from_str("AC|BC|&").unwrap();
+        assert_eq!(distribute_to_left(node.root), result.root);
     }
 
     #[test]
     fn basic_distribute_right() {
-        let node = Node::from_str("CAB&|").unwrap();
-        let result = Node::from_str("CA|CB|&").unwrap();
-        assert_eq!(distribute_to_right(node), result);
+        let node = Tree::from_str("CAB&|").unwrap();
+        let result = Tree::from_str("CA|CB|&").unwrap();
+        assert_eq!(distribute_to_right(node.root), result.root);
     }
 }

@@ -1,9 +1,10 @@
 use boolean_evaluation::node::Node;
 use std::str::FromStr;
+use boolean_evaluation::tree::Tree;
 
 fn eval_formula(str: &str) -> bool {
-    let node = Node::from_str(str).unwrap();
-    node.compute_node()
+    let node = Tree::from_str(str).unwrap();
+    node.root.compute_node()
 }
 
 fn main() {

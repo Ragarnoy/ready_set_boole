@@ -1,11 +1,8 @@
-use std::borrow::Borrow;
 use std::cell::RefCell;
-use std::collections::HashMap;
 use crate::operator::Operator;
 use std::fmt;
 use std::fmt::{Display, Formatter};
 use std::rc::Rc;
-use std::str::FromStr;
 use crate::variable::Variable;
 
 const VALID_TOKENS: &[char] = &['1', '0', '!', '&', '^', '=', '|', '>'];
@@ -36,76 +33,6 @@ impl Display for Node {
             Node::BinaryExpr { op, lhs, rhs } => ret.push_str(&*format!("{} {} {}", lhs, op, rhs)),
         }
         write!(f, "{}", ret)
-    }
-}
-
-impl FromStr for Node {
-    type Err = String;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        if s.is_empty() {
-            return Err(String::from("Empty input!"));
-        }
-        if !s.contains(VALID_TOKENS) {
-            return Err(String::from("Invalid tokens"));
-        }
-
-        let mut node_stack: Vec<Node> = Vec::with_capacity(50);
-        let mut vec_alphabet_ref: Rc<RefCell<Vec<Option<Rc<RefCell<Variable>>>>>> = Rc::new(RefCell::new(vec![None; 26]));
-        let mut vec_alphabet: &mut Vec<Option<Rc<RefCell<Variable>>>> = vec_alphabet_ref.clone().get_mut();
-
-        for c in s.chars() {
-            let node = match c {
-                'A'..='Z' => {
-                    let idx = c as usize - 'A' as usize;
-                    if let Some(v) = &vec_alphabet[idx] {
-                        Node::Variable(v.clone())
-                    } else {
-                        let v = Rc::new(RefCell::new(Variable::new(c, false)));
-                        vec_alphabet[idx] = Some(v.clone());
-                        Node::Variable(v)
-                    }
-                },
-                '1' => Node::Constant(true),
-                '0' => Node::Constant(false),
-                '&' => Node::BinaryExpr {
-                    op: Operator::And,
-                    rhs: Box::new(node_stack.pop().expect("Invalid input")),
-                    lhs: Box::new(node_stack.pop().expect("Invalid input")),
-                },
-                '|' => Node::BinaryExpr {
-                    op: Operator::Or,
-                    rhs: Box::new(node_stack.pop().expect("Invalid input")),
-                    lhs: Box::new(node_stack.pop().expect("Invalid input")),
-                },
-                '^' => Node::BinaryExpr {
-                    op: Operator::Xor,
-                    rhs: Box::new(node_stack.pop().expect("Invalid input")),
-                    lhs: Box::new(node_stack.pop().expect("Invalid input")),
-                },
-                '>' => Node::BinaryExpr {
-                    op: Operator::Imply,
-                    rhs: Box::new(node_stack.pop().expect("Invalid input")),
-                    lhs: Box::new(node_stack.pop().expect("Invalid input")),
-                },
-                '=' => Node::BinaryExpr {
-                    op: Operator::Xnor,
-                    rhs: Box::new(node_stack.pop().expect("Invalid input")),
-                    lhs: Box::new(node_stack.pop().expect("Invalid input")),
-                },
-                '!' => Node::UnaryExpr {
-                    op: Operator::Not,
-                    child: Box::new(node_stack.pop().expect("Invalid input")),
-                },
-                _ => return Err("Invalid input".to_string()),
-            };
-            node_stack.push(node);
-        }
-        if node_stack.is_empty() {
-            Err("Empty input".to_string())
-        } else {
-            Ok(node_stack.remove(0))
-        }
     }
 }
 
@@ -165,33 +92,34 @@ fn eval_unary(op: Operator, child: bool) -> bool {
 mod node_tests {
     use crate::node::Node;
     use std::str::FromStr;
+    use crate::tree::Tree;
 
     #[test]
     // lots of rpn tests
     fn test_print_rpn() {
         let teststr = "AB&";
-        let node = Node::from_str(teststr).unwrap();
-        assert_eq!(node.print_rpn(), teststr);
+        let node = Tree::from_str(teststr).unwrap();
+        assert_eq!(node.root.print_rpn(), teststr);
     }
 
     #[test]
     fn test_print_rpn_2() {
         let teststr = "AB&C|";
-        let node = Node::from_str(teststr).unwrap();
-        assert_eq!(node.print_rpn(), teststr);
+        let node = Tree::from_str(teststr).unwrap();
+        assert_eq!(node.root.print_rpn(), teststr);
     }
 
     #[test]
     fn test_print_rpn_3() {
         let teststr = "AB&C|D^";
-        let node = Node::from_str(teststr).unwrap();
-        assert_eq!(node.print_rpn(), teststr);
+        let node = Tree::from_str(teststr).unwrap();
+        assert_eq!(node.root.print_rpn(), teststr);
     }
 
     #[test]
     fn test_print_rpn_4() {
         let teststr = "AB&C|D^!";
-        let node = Node::from_str(teststr).unwrap();
-        assert_eq!(node.print_rpn(), teststr);
+        let node = Tree::from_str(teststr).unwrap();
+        assert_eq!(node.root.print_rpn(), teststr);
     }
 }
