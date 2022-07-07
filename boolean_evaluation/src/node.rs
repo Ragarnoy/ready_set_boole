@@ -30,7 +30,7 @@ impl Display for Node {
         let mut ret = String::new();
 
         match self {
-            Node::Variable(c) => ret.push(c.borrow().name),
+            Node::Variable(c) => ret.push(RefCell::borrow(c).name),
             Node::Constant(x) => ret.push(if *x { '1' } else { '0' }),
             Node::UnaryExpr { op, child } => ret.push_str(&*format!("{}{}", op, child)),
             Node::BinaryExpr { op, lhs, rhs } => ret.push_str(&*format!("{} {} {}", lhs, op, rhs)),
@@ -125,7 +125,7 @@ impl Node {
         let mut ret = String::new();
         match self {
             // for a variable or constant, just print the value
-            Node::Variable(c) => ret.push(c.borrow().name),
+            Node::Variable(c) => ret.push(RefCell::borrow(c).name),
             Node::Constant(x) => ret.push(if *x { '1' } else { '0' }),
             // for a unary expression, first recurse on the child, then print the operator
             Node::UnaryExpr { op, child } => {
