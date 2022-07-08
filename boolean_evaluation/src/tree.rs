@@ -16,6 +16,25 @@ pub struct Tree {
     pub variable_list: Option<VariableRefList>,
 }
 
+impl Tree {
+    pub fn sat(self) -> bool {
+        if let Some(variable_list) = self.variable_list {
+            // variable_list.iter().filter(|v| v.is_some()).map_while(|v| v.as_ref())
+            for bitfield in 0..2u32.pow(variable_list.iter().filter(|v| v.is_some()).count() as u32) {
+                let results = variable_list.iter().filter(|v| v.is_some()).enumerate().map_while(|(i, v)| {
+                    let v = v.as_ref().unwrap();
+                    v.borrow_mut().value = (bitfield & (1u32 << i)) != 0;
+                    self.root.clone().compute_node().then_some(())
+                }).collect();
+            }
+            todo!()
+        }
+        else {
+            false
+        }
+    }
+}
+
 impl FromStr for Tree {
     type Err = String;
 
