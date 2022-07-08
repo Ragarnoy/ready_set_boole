@@ -39,7 +39,7 @@ impl Display for Node {
 impl Node {
     pub fn compute_node(self) -> bool {
         match self {
-            Variable(_) => panic!("Variable node cannot be evaluated"),
+            Variable(v) => v.borrow().value,
             Constant(p) => p,
             BinaryExpr { op, lhs, rhs } => eval_binary(lhs.compute_node(), op, rhs.compute_node()),
             UnaryExpr { op, child } => eval_unary(op, child.compute_node()),
