@@ -19,17 +19,18 @@ pub struct Tree {
 impl Tree {
     pub fn sat(self) -> bool {
         if let Some(variable_list) = self.variable_list {
-            // variable_list.iter().filter(|v| v.is_some()).map_while(|v| v.as_ref())
-            for bitfield in 0..2u32.pow(variable_list.iter().filter(|v| v.is_some()).count() as u32) {
-                let results = variable_list.iter().filter(|v| v.is_some()).enumerate().map_while(|(i, v)| {
-                    let v = v.as_ref().unwrap();
-                    v.borrow_mut().value = (bitfield & (1u32 << i)) != 0;
-                    self.root.clone().compute_node().then_some(())
-                }).collect();
+            for bitfield in 0..2u32.pow(variable_list.iter().filter(|v| v.is_some()).count() as u32)
+            {
+                for (i, v) in variable_list.iter().filter(|v| v.is_some()).enumerate() {
+                    let mut v = v.as_ref().unwrap().borrow_mut();
+                    v.value = (bitfield & (1u32 << i)) != 0;
+                    if self.root.clone().compute_node() {
+                        return true;
+                    }
+                }
             }
-            todo!()
-        }
-        else {
+            false
+        } else {
             false
         }
     }

@@ -1,5 +1,5 @@
-use std::str::FromStr;
 use boolean_evaluation::tree::Tree;
+use std::str::FromStr;
 
 fn sat(formula: &str) -> bool {
     let node = Tree::from_str(formula).unwrap();
@@ -11,6 +11,6 @@ fn main() {
     if args.len() > 1 && !args[1].is_empty() {
         println!("{}", sat(&args[1]));
     } else {
-        println!("{}", sat("10|"));
+        println!("{}", sat("AB|"));
     }
 }
