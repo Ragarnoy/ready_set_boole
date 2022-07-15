@@ -1,7 +1,7 @@
 use std::fmt;
 use std::fmt::{Debug, Display, Formatter};
 
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq, Copy)]
 pub enum Operator {
     Not,
     And,
