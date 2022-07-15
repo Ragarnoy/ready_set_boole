@@ -3,7 +3,7 @@ use std::str::FromStr;
 
 fn eval_formula(str: &str) -> bool {
     let node = Tree::from_str(str).unwrap();
-    node.root.compute_node()
+    node.root.into_compute_node()
 }
 
 fn main() {
