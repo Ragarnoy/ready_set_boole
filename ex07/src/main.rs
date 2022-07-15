@@ -11,6 +11,6 @@ fn main() {
     if args.len() > 1 && !args[1].is_empty() {
         println!("{}", sat(&args[1]));
     } else {
-        println!("{}", sat("AB|"));
+        println!("{}", sat("AA^"));
     }
 }

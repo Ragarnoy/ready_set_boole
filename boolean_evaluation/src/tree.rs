@@ -22,9 +22,11 @@ impl Tree {
             for bitfield in 0..2u32.pow(variable_list.iter().filter(|v| v.is_some()).count() as u32)
             {
                 for (i, v) in variable_list.iter().filter(|v| v.is_some()).enumerate() {
-                    let mut v = v.as_ref().unwrap().borrow_mut();
-                    v.value = (bitfield & (1u32 << i)) != 0;
-                    if self.root.clone().compute_node() {
+                    {
+                        let mut v = v.as_ref().unwrap().borrow_mut();
+                        v.value = (bitfield & (1u32 << i)) != 0;
+                    }
+                    if self.root.compute_node() {
                         return true;
                     }
                 }
@@ -108,6 +110,27 @@ impl FromStr for Tree {
                     None
                 },
             })
+        }
+    }
+}
+
+#[cfg(test)]
+mod tree_tests {
+
+    mod sat_tests {
+        use crate::tree::Tree;
+        use std::str::FromStr;
+
+        #[test]
+        fn test_sat_false() {
+            let tree = Tree::from_str("AA^").unwrap();
+            assert!(!tree.sat());
+        }
+
+        #[test]
+        fn test_sat_true() {
+            let tree = Tree::from_str("AB|").unwrap();
+            assert!(tree.sat());
         }
     }
 }
