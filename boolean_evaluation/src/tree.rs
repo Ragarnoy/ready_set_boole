@@ -121,7 +121,6 @@ mod tree_tests {
     mod sat_tests {
         use crate::tree::Tree;
         use std::str::FromStr;
-
         #[test]
         fn test_sat_false() {
             let tree = Tree::from_str("AA^").unwrap();
@@ -131,6 +130,25 @@ mod tree_tests {
         #[test]
         fn test_sat_true() {
             let tree = Tree::from_str("AB|").unwrap();
+            assert!(tree.sat());
+        }
+    }
+
+    // TODO THE TESTS
+    mod set_tests {
+        use crate::tree::Tree;
+        use std::str::FromStr;
+        #[test]
+        fn test_set_false() {
+            let mut tree = Tree::from_str("AA^").unwrap();
+            tree.assign_sets(vec![vec![0, 0]]);
+            assert!(!tree.sat());
+        }
+
+        #[test]
+        fn test_set_true() {
+            let mut tree = Tree::from_str("AB|").unwrap();
+            tree.assign_sets(vec![vec![0, 1]]);
             assert!(tree.sat());
         }
     }
