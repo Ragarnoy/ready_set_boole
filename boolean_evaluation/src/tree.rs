@@ -59,7 +59,7 @@ impl FromStr for Tree {
                     if let Some(v) = &vec_alphabet[idx] {
                         Variable(v.clone())
                     } else {
-                        let v = Rc::new(RefCell::new(Variable::new(c, false)));
+                        let v = Rc::new(RefCell::new(Variable::new(c)));
                         vec_alphabet[idx] = Some(v.clone());
                         Variable(v)
                     }
