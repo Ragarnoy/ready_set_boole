@@ -105,6 +105,7 @@ impl FromStr for Tree {
             Ok(Self {
                 root: node_stack.remove(0),
                 variable_list: if s.contains(char::is_alphabetic) {
+                    vec_alphabet.retain(|v| v.is_some());
                     Some(vec_alphabet)
                 } else {
                     None
