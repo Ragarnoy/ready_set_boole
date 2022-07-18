@@ -57,6 +57,22 @@ impl Node {
         }
     }
 
+    pub fn compute_sets(&self) -> Vec<i32> {
+        match self {
+            Variable(v) => v.borrow().set.as_ref().unwrap().clone(),
+            Constant(p) => vec![if *p { 1 } else { 0 }],
+            BinaryExpr { op, lhs, rhs } => {
+                let lhs_sets = lhs.compute_sets();
+                let rhs_sets = rhs.compute_sets();
+                eval_binary_sets(lhs_sets, *op, rhs_sets)
+            }
+            UnaryExpr { op, child } => {
+                let child_sets = child.compute_sets();
+                eval_unary_sets(*op, child_sets)
+            }
+        }
+    }
+
     pub fn print_rpn(&self) -> String {
         let mut ret = String::new();
         match self {
@@ -90,9 +106,37 @@ fn eval_binary(lhs: bool, op: Operator, rhs: bool) -> bool {
     }
 }
 
+fn eval_binary_sets(lhs: Vec<i32>, op: Operator, rhs: Vec<i32>) -> Vec<i32> {
+    match op {
+        // kind of ugly
+        And => {
+            let mut ret: Vec<i32> = lhs.iter().filter(|x| rhs.contains(x)).cloned().collect();
+            ret.sort();
+            ret.dedup();
+            ret
+        }
+        Or => {
+            let mut ret = [lhs, rhs].concat();
+            ret.sort();
+            ret.dedup();
+            ret
+        }
+        _ => unreachable!(),
+    }
+}
+
 fn eval_unary(op: Operator, child: bool) -> bool {
     match op {
         Not => !child,
+        _ => unreachable!(),
+    }
+}
+
+fn eval_unary_sets(op: Operator, _child: Vec<i32>) -> Vec<i32> {
+    match op {
+        Not => {
+            vec![]
+        }
         _ => unreachable!(),
     }
 }

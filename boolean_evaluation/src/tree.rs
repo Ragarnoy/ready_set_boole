@@ -36,6 +36,25 @@ impl Tree {
             false
         }
     }
+
+    pub fn evaluate_sets(self) -> Vec<i32> {
+        self.root.compute_sets()
+    }
+
+    pub fn assign_sets(&mut self, sets: Vec<Vec<i32>>) {
+        if let Some(variable_list) = &self.variable_list {
+            if sets.len() != variable_list.len() {
+                panic!("Number of sets does not match number of variables");
+            }
+            sets.into_iter()
+                .zip(variable_list.iter())
+                .filter(|(_, v)| v.is_some())
+                .for_each(|(set, v)| {
+                    let mut v = v.as_ref().unwrap().borrow_mut();
+                    v.set = Some(set);
+                });
+        }
+    }
 }
 
 impl FromStr for Tree {
