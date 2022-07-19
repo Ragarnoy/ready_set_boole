@@ -1,4 +1,5 @@
 use crate::operator::Operator;
+use crate::set::Set;
 use crate::variable::Variable;
 use std::cell::RefCell;
 use std::fmt;
@@ -57,10 +58,10 @@ impl Node {
         }
     }
 
-    pub fn compute_sets(&self) -> Vec<i32> {
+    pub fn compute_sets(&self) -> Set {
         match self {
-            Variable(v) => v.borrow().set.as_ref().unwrap().clone(),
-            Constant(p) => vec![if *p { 1 } else { 0 }],
+            Variable(v) => Set::new(v.borrow().set.as_ref().unwrap().clone()),
+            Constant(p) => Set::new(vec![if *p { 1 } else { 0 }]),
             BinaryExpr { op, lhs, rhs } => {
                 let lhs_sets = lhs.compute_sets();
                 let rhs_sets = rhs.compute_sets();
@@ -106,21 +107,63 @@ fn eval_binary(lhs: bool, op: Operator, rhs: bool) -> bool {
     }
 }
 
-fn eval_binary_sets(lhs: Vec<i32>, op: Operator, rhs: Vec<i32>) -> Vec<i32> {
+fn eval_binary_sets(lhs: Set, op: Operator, rhs: Set) -> Set {
     match op {
-        // kind of ugly
-        And => {
-            let mut ret: Vec<i32> = lhs.iter().filter(|x| rhs.contains(x)).cloned().collect();
-            ret.sort();
-            ret.dedup();
-            ret
-        }
-        Or => {
-            let mut ret = [lhs, rhs].concat();
-            ret.sort();
-            ret.dedup();
-            ret
-        }
+        And => match (lhs.is_complement, rhs.is_complement) {
+            (false, false) => lhs
+                .values
+                .iter()
+                .filter(|x| rhs.values.contains(x))
+                .copied()
+                .collect(),
+            (false, true) => lhs
+                .values
+                .iter()
+                .filter(|x| !rhs.values.contains(x))
+                .copied()
+                .collect(),
+            (true, false) => rhs
+                .values
+                .iter()
+                .filter(|x| !lhs.values.contains(x))
+                .copied()
+                .collect(),
+            (true, true) => Set {
+                values: [
+                    lhs.values.clone(),
+                    rhs.values
+                        .iter()
+                        .filter(|x| !lhs.values.contains(x))
+                        .copied()
+                        .collect(),
+                ]
+                .concat(),
+                is_complement: true,
+            },
+        },
+        Or => match (lhs.is_complement, rhs.is_complement) {
+            (false, false) => [
+                lhs.values.clone(),
+                rhs.values
+                    .iter()
+                    .filter(|x| !lhs.values.contains(x))
+                    .copied()
+                    .collect(),
+            ]
+            .concat()
+            .into(),
+            (false, true) => lhs,
+            (true, false) => rhs,
+            (true, true) => Set {
+                values: lhs
+                    .values
+                    .iter()
+                    .filter(|x| rhs.values.contains(x))
+                    .copied()
+                    .collect(),
+                is_complement: true,
+            },
+        },
         _ => unreachable!(),
     }
 }
@@ -132,10 +175,11 @@ fn eval_unary(op: Operator, child: bool) -> bool {
     }
 }
 
-fn eval_unary_sets(op: Operator, _child: Vec<i32>) -> Vec<i32> {
+fn eval_unary_sets(op: Operator, mut child: Set) -> Set {
     match op {
         Not => {
-            vec![]
+            child.is_complement = !child.is_complement;
+            child
         }
         _ => unreachable!(),
     }

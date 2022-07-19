@@ -38,7 +38,12 @@ impl Tree {
     }
 
     pub fn evaluate_sets(self) -> Vec<i32> {
-        self.root.compute_sets()
+        let ret = self.root.compute_sets();
+        if ret.is_complement {
+            vec![]
+        } else {
+            ret.values
+        }
     }
 
     pub fn assign_sets(&mut self, sets: Vec<Vec<i32>>) {
