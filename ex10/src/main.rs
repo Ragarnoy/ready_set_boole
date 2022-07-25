@@ -1,33 +1,34 @@
 use std::mem;
 
-fn map(x: u16, y: u16) -> f64 {
-    let mut d: f64 = 0.0;
-    let mut s: f64 = 2.0f64.powf(16.0) / 2.0;
-    let (mut x, mut y) = (x, y);
+fn inverse_hilbert_curve(mut x: u16, mut y: u16) -> u32 {
+    let mut d: u32 = 0;
+    let mut s: u32 = 1 << 15;
     let (mut rx, mut ry);
 
-    while s > 0.0 {
-        rx = if (x & s as u16) > 0 { 1 } else { 0 };
-        ry = if (y & s as u16) > 0 { 1 } else { 0 };
-        d += s as f64 * s as f64 * ((3 * rx) ^ ry) as f64;
+    while s as u16 > 0 {
+        rx = (x & s as u16) != 0;
+        ry = (y & s as u16) != 0;
+        d += s.pow(2) * ((3 * rx as u32) ^ ry as u32);
         rotate(s as u16, &mut x, &mut y, rx, ry);
-        s /= 2.0
+        s >>= 1;
     }
-
-    d / (2.0f64.powf(32.0) -1.0)
+    d
 }
 
-fn rotate(n: u16, x: &mut u16, y: &mut u16, rx: u16, ry: u16) {
-    if ry == 0 {
-        if rx == 1 {
+fn rotate(n: u16, x: &mut u16, y: &mut u16, rx: bool, ry: bool) {
+    if !ry {
+        if rx {
             *x = n.wrapping_sub(1).wrapping_sub(*x);
             *y = n.wrapping_sub(1).wrapping_sub(*y);
         }
-
         mem::swap(x, y);
     }
 }
 
+fn map(x: u16, y: u16) -> f64 {
+    inverse_hilbert_curve(x, y) as f64 / (2.0f64.powf(32.0) -1.0)
+}
+
 fn main() {
-    println!("{}", map(u16::MAX, 0));
+    println!("{}", map(u16::MAX / 2, u16::MAX / 2));
 }
