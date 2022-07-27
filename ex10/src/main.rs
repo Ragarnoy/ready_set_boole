@@ -30,5 +30,11 @@ fn map(x: u16, y: u16) -> f64 {
 }
 
 fn main() {
-    println!("{}", map(u16::MAX / 2, u16::MAX / 2));
+    let (mut x, mut y) = (0u32, 0u32);
+    while x < (u16::MAX - 1) as u32 && y < (u16::MAX - 1) as u32 {
+        print!("{} {} => ", x, y);
+        println!("{}", map(x as u16, y as u16));
+        x = x.wrapping_add(100);
+        y= y.wrapping_add(100);
+    }
 }
