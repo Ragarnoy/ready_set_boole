@@ -32,9 +32,11 @@ fn map(x: u16, y: u16) -> f64 {
 fn main() {
     let (mut x, mut y) = (0u32, 0u32);
     while x < (u16::MAX - 1) as u32 && y < (u16::MAX - 1) as u32 {
-        print!("{} {} => ", x, y);
-        println!("{}", map(x as u16, y as u16));
+        print!("{:-5} {:-5} => ", x, y);
+        println!("{:.5}", map(x as u16, y as u16));
         x = x.wrapping_add(100);
         y= y.wrapping_add(100);
     }
+    print!("{:-5} {:-5} => ", u16::MAX, 0);
+    println!("{}", map(1,1));
 }
