@@ -26,7 +26,7 @@ fn rotate(n: u16, x: &mut u16, y: &mut u16, rx: bool, ry: bool) {
 }
 
 fn map(x: u16, y: u16) -> f64 {
-    inverse_hilbert_curve(x, y) as f64 / (2.0f64.powf(32.0) -1.0)
+    inverse_hilbert_curve(x, y) as f64 / (2.0f64.powf(32.0) - 1.0)
 }
 
 fn main() {
@@ -35,8 +35,8 @@ fn main() {
         print!("{:-5} {:-5} => ", x, y);
         println!("{:.5}", map(x as u16, y as u16));
         x = x.wrapping_add(100);
-        y= y.wrapping_add(100);
+        y = y.wrapping_add(100);
     }
     print!("{:-5} {:-5} => ", u16::MAX, 0);
-    println!("{}", map(1,1));
+    println!("{}", map(1, 1));
 }

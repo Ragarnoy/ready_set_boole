@@ -28,7 +28,9 @@ fn hilbert_curve(mut n: u32) -> (u16, u16) {
                 x = order.wrapping_sub(1).wrapping_sub(tmp); // swap + reverse
                 x += order; // move
             }
-            _ => { unreachable!() }
+            _ => {
+                unreachable!()
+            }
         }
         n >>= 2;
     }
