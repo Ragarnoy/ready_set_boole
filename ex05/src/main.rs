@@ -11,3 +11,36 @@ fn negation_normal_form(formula: &str) -> String {
 fn main() {
     println!("{}", negation_normal_form("AB&!"));
 }
+
+#[cfg(test)]
+mod nnf_42_test {
+    use crate::negation_normal_form;
+
+    #[test]
+    fn test_nnf_42() {
+        assert_eq!(
+            negation_normal_form("AB&!"),
+            "A!B!|"
+        );
+
+        assert_eq!(
+            negation_normal_form("AB|!"),
+            "A!B!&"
+        );
+
+        assert_eq!(
+            negation_normal_form("AB>"),
+            "A!B|"
+        );
+
+        assert_eq!(
+            negation_normal_form("AB="),
+            "AB&A!B!&|"
+        );
+
+        assert_eq!(
+            negation_normal_form("AB|C&!"),
+            "A!B!&C!|"
+        );
+    }
+}
