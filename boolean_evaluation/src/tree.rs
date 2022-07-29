@@ -158,7 +158,6 @@ mod tree_tests {
         }
     }
 
-    // TODO THE TESTS
     mod set_tests {
         use crate::tree::Tree;
         use std::str::FromStr;
@@ -166,6 +165,9 @@ mod tree_tests {
         fn test_set_false() {
             let mut tree = Tree::from_str("AB&").unwrap();
             tree.assign_sets(vec![vec![1, 2], vec![3, 4]]);
+            assert_eq!(tree.evaluate_sets(), vec![]);
+            let mut tree = Tree::from_str("A!").unwrap();
+            tree.assign_sets(vec![vec![1, 2, 3]]);
             assert_eq!(tree.evaluate_sets(), vec![]);
         }
 
