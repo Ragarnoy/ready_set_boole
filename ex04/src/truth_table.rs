@@ -63,7 +63,7 @@ impl Display for TruthTable {
                     },
                 );
             }
-            let result = Tree::from_str(&*tmp_formula).unwrap().root.compute_node();
+            let result = Tree::from_str(&*tmp_formula).unwrap().root.eval_ref();
             body.push_str(
                 format!(
                     "{}\n",

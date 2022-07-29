@@ -38,23 +38,21 @@ impl Display for Node {
 }
 
 impl Node {
-    pub fn into_compute_node(self) -> bool {
+    pub fn eval(self) -> bool {
         match self {
             Variable(v) => v.borrow().value,
             Constant(p) => p,
-            BinaryExpr { op, lhs, rhs } => {
-                eval_binary(lhs.into_compute_node(), op, rhs.into_compute_node())
-            }
-            UnaryExpr { op, child } => eval_unary(op, child.into_compute_node()),
+            BinaryExpr { op, lhs, rhs } => eval_binary(lhs.eval(), op, rhs.eval()),
+            UnaryExpr { op, child } => eval_unary(op, child.eval()),
         }
     }
 
-    pub fn compute_node(&self) -> bool {
+    pub fn eval_ref(&self) -> bool {
         match self {
             Variable(v) => v.borrow().value,
             Constant(p) => *p,
-            BinaryExpr { op, lhs, rhs } => eval_binary(lhs.compute_node(), *op, rhs.compute_node()),
-            UnaryExpr { op, child } => eval_unary(*op, child.compute_node()),
+            BinaryExpr { op, lhs, rhs } => eval_binary(lhs.eval_ref(), *op, rhs.eval_ref()),
+            UnaryExpr { op, child } => eval_unary(*op, child.eval_ref()),
         }
     }
 

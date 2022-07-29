@@ -26,7 +26,7 @@ impl Tree {
                         let mut v = v.as_ref().unwrap().borrow_mut();
                         v.value = (bitfield & (1u32 << i)) != 0;
                     }
-                    if self.root.compute_node() {
+                    if self.root.eval_ref() {
                         return true;
                     }
                 }
@@ -164,16 +164,16 @@ mod tree_tests {
         use std::str::FromStr;
         #[test]
         fn test_set_false() {
-            let mut tree = Tree::from_str("AA^").unwrap();
-            tree.assign_sets(vec![vec![0, 0]]);
-            assert!(!tree.sat());
+            let mut tree = Tree::from_str("AB&").unwrap();
+            tree.assign_sets(vec![vec![1, 2], vec![3, 4]]);
+            assert_eq!(tree.evaluate_sets(), vec![]);
         }
 
         #[test]
         fn test_set_true() {
             let mut tree = Tree::from_str("AB|").unwrap();
-            tree.assign_sets(vec![vec![0, 1]]);
-            assert!(tree.sat());
+            tree.assign_sets(vec![vec![0, 1], vec![2, 3]]);
+            assert_eq!(tree.evaluate_sets(), vec![0, 1, 2, 3]);
         }
     }
 }
