@@ -15,3 +15,46 @@ fn main() {
         conjunctive_normal_form("AB&C|");
     }
 }
+
+#[cfg(test)]
+mod cnf_42_test {
+    use crate::conjunctive_normal_form;
+
+    #[test]
+    fn test_cnf_42() {
+        assert_eq!(
+            conjunctive_normal_form("AB&!"),
+            "A!B!|"
+        );
+
+        assert_eq!(
+            conjunctive_normal_form("AB|!"),
+            "A!B!&"
+        );
+
+        assert_eq!(
+            conjunctive_normal_form("AB|C&"),
+            "AB|C&"
+        );
+
+        assert_eq!(
+            conjunctive_normal_form("AB|C|D|"),
+            "ABCD|||"
+        );
+
+        assert_eq!(
+            conjunctive_normal_form("AB&C&D&"),
+            "ABCD&&&"
+        );
+
+        assert_eq!(
+            conjunctive_normal_form("AB&!C!|"),
+            "A!B!C!||"
+        );
+
+        assert_eq!(
+            conjunctive_normal_form("AB|!C!&"),
+            "A!B!C!&&"
+        );
+    }
+}
