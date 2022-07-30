@@ -4,7 +4,7 @@ use std::str::FromStr;
 
 fn conjunctive_normal_form(formula: &str) -> String {
     let node = Tree::from_str(formula).unwrap();
-    node_to_cnf(node.root).print_rpn()
+    node_to_cnf(node.root).to_rpn()
 }
 
 fn main() {

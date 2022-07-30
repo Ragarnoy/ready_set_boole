@@ -72,7 +72,7 @@ impl Node {
         }
     }
 
-    pub fn print_rpn(&self) -> String {
+    pub fn to_rpn(&self) -> String {
         let mut ret = String::new();
         match self {
             // for a variable or constant, just print the value
@@ -80,13 +80,13 @@ impl Node {
             Constant(x) => ret.push(if *x { '1' } else { '0' }),
             // for a unary expression, first recurse on the child, then print the operator
             UnaryExpr { op, child } => {
-                ret.push_str(&*format!("{}{:?}", Self::print_rpn(child), op))
+                ret.push_str(&*format!("{}{:?}", Self::to_rpn(child), op))
             }
             // for a binary expression, first recurse on the lhs, then recurse on the rhs, then print the operator
             BinaryExpr { op, lhs, rhs } => ret.push_str(&*format!(
                 "{}{}{:?}",
-                Self::print_rpn(lhs),
-                Self::print_rpn(rhs),
+                Self::to_rpn(lhs),
+                Self::to_rpn(rhs),
                 op
             )),
         }
