@@ -22,39 +22,18 @@ mod cnf_42_test {
 
     #[test]
     fn test_cnf_42() {
-        assert_eq!(
-            conjunctive_normal_form("AB&!"),
-            "A!B!|"
-        );
+        assert_eq!(conjunctive_normal_form("AB&!"), "A!B!|");
 
-        assert_eq!(
-            conjunctive_normal_form("AB|!"),
-            "A!B!&"
-        );
+        assert_eq!(conjunctive_normal_form("AB|!"), "A!B!&");
 
-        assert_eq!(
-            conjunctive_normal_form("AB|C&"),
-            "AB|C&"
-        );
+        assert_eq!(conjunctive_normal_form("AB|C&"), "AB|C&");
 
-        assert_eq!(
-            conjunctive_normal_form("AB|C|D|"),
-            "ABCD|||"
-        );
+        assert_eq!(conjunctive_normal_form("AB|C|D|"), "ABCD|||");
 
-        assert_eq!(
-            conjunctive_normal_form("AB&C&D&"),
-            "ABCD&&&"
-        );
+        assert_eq!(conjunctive_normal_form("AB&C&D&"), "ABCD&&&");
 
-        assert_eq!(
-            conjunctive_normal_form("AB&!C!|"),
-            "A!B!C!||"
-        );
+        assert_eq!(conjunctive_normal_form("AB&!C!|"), "A!B!C!||");
 
-        assert_eq!(
-            conjunctive_normal_form("AB|!C!&"),
-            "A!B!C!&&"
-        );
+        assert_eq!(conjunctive_normal_form("AB|!C!&"), "A!B!C!&&");
     }
 }

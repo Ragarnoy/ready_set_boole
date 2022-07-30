@@ -18,29 +18,14 @@ mod nnf_42_test {
 
     #[test]
     fn test_nnf_42() {
-        assert_eq!(
-            negation_normal_form("AB&!"),
-            "A!B!|"
-        );
+        assert_eq!(negation_normal_form("AB&!"), "A!B!|");
 
-        assert_eq!(
-            negation_normal_form("AB|!"),
-            "A!B!&"
-        );
+        assert_eq!(negation_normal_form("AB|!"), "A!B!&");
 
-        assert_eq!(
-            negation_normal_form("AB>"),
-            "A!B|"
-        );
+        assert_eq!(negation_normal_form("AB>"), "A!B|");
 
-        assert_eq!(
-            negation_normal_form("AB="),
-            "AB&A!B!&|"
-        );
+        assert_eq!(negation_normal_form("AB="), "AB&A!B!&|");
 
-        assert_eq!(
-            negation_normal_form("AB|C&!"),
-            "A!B!&C!|"
-        );
+        assert_eq!(negation_normal_form("AB|C&!"), "A!B!&C!|");
     }
 }
