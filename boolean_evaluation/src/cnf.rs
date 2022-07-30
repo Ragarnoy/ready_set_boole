@@ -19,27 +19,13 @@ pub fn node_to_cnf(node: Node) -> Node {
                     matches!(*rhs, BinaryExpr { op: And, .. }),
                 );
 
+                let lhs = node_to_cnf(*lhs);
+                let rhs = node_to_cnf(*rhs);
                 match has_and {
-                    (true, true) => distribute_both(BinaryExpr {
-                        op: Or,
-                        lhs: Box::new(node_to_cnf(*lhs)),
-                        rhs: Box::new(node_to_cnf(*rhs)),
-                    }),
-                    (true, false) => distribute_to_left(BinaryExpr {
-                        op: Or,
-                        lhs: Box::new(node_to_cnf(*lhs)),
-                        rhs: Box::new(node_to_cnf(*rhs)),
-                    }),
-                    (false, true) => distribute_to_right(BinaryExpr {
-                        op: Or,
-                        lhs: Box::new(node_to_cnf(*lhs)),
-                        rhs: Box::new(node_to_cnf(*rhs)),
-                    }),
-                    _ => BinaryExpr {
-                        op: Or,
-                        lhs: Box::new(node_to_cnf(*lhs)),
-                        rhs: Box::new(node_to_cnf(*rhs)),
-                    },
+                    (true, true) => distribute_both(lhs | rhs),
+                    (true, false) => distribute_to_left(lhs | rhs),
+                    (false, true) => distribute_to_right(lhs | rhs),
+                    _ => lhs | rhs,
                 }
             }
             _ => unreachable!(),
@@ -69,35 +55,12 @@ fn distribute_both(node: Node) -> Node {
                     lhs: rhs_lhs,
                     rhs: rhs_rhs,
                 },
-            ) => BinaryExpr {
-                op: And,
-                lhs: Box::new(BinaryExpr {
-                    op: And,
-                    lhs: Box::new(node_to_cnf(BinaryExpr {
-                        op: Or,
-                        lhs: Box::new(*lhs_lhs.clone()),
-                        rhs: Box::new(*rhs_lhs.clone()),
-                    })),
-                    rhs: Box::new(node_to_cnf(BinaryExpr {
-                        op: Or,
-                        lhs: Box::new(*lhs_lhs),
-                        rhs: Box::new(*rhs_rhs.clone()),
-                    })),
-                }),
-                rhs: Box::new(BinaryExpr {
-                    op: And,
-                    lhs: Box::new(node_to_cnf(BinaryExpr {
-                        op: Or,
-                        lhs: Box::new(*lhs_rhs.clone()),
-                        rhs: Box::new(*rhs_lhs),
-                    })),
-                    rhs: Box::new(node_to_cnf(BinaryExpr {
-                        op: Or,
-                        lhs: Box::new(*lhs_rhs),
-                        rhs: Box::new(*rhs_rhs),
-                    })),
-                }),
-            },
+            ) => {
+                // ((ll | rl) & (ll | rr)) & ((lr | rl) & (lr | rr))
+                (node_to_cnf(*lhs_lhs.clone() | *rhs_lhs.clone())
+                    & node_to_cnf(*lhs_lhs | *rhs_rhs.clone()))
+                    & (node_to_cnf(*lhs_rhs.clone() | *rhs_lhs) & node_to_cnf(*lhs_rhs | *rhs_rhs))
+            }
             _ => unreachable!(),
         }
     } else {
@@ -117,19 +80,7 @@ fn distribute_to_left(node: Node) -> Node {
                 op: And,
                 lhs: lhs_lhs,
                 rhs: lhs_rhs,
-            } => BinaryExpr {
-                op: And,
-                lhs: Box::new(node_to_cnf(BinaryExpr {
-                    op: Or,
-                    lhs: Box::new(*lhs_lhs),
-                    rhs: Box::new(*rhs.clone()),
-                })),
-                rhs: Box::new(node_to_cnf(BinaryExpr {
-                    op: Or,
-                    lhs: Box::new(*lhs_rhs),
-                    rhs: Box::new(*rhs),
-                })),
-            },
+            } => node_to_cnf(*lhs_lhs | *rhs.clone()) & node_to_cnf(*lhs_rhs | *rhs),
             _ => unreachable!(),
         }
     } else {
@@ -144,19 +95,7 @@ fn distribute_to_right(node: Node) -> Node {
                 op: And,
                 lhs: rhs_lhs,
                 rhs: rhs_rhs,
-            } => BinaryExpr {
-                op: And,
-                lhs: Box::new(node_to_cnf(BinaryExpr {
-                    op: Or,
-                    lhs: Box::new(*lhs.clone()),
-                    rhs: Box::new(*rhs_lhs),
-                })),
-                rhs: Box::new(node_to_cnf(BinaryExpr {
-                    op: Or,
-                    lhs: Box::new(*lhs),
-                    rhs: Box::new(*rhs_rhs),
-                })),
-            },
+            } => node_to_cnf(*lhs.clone() | *rhs_lhs) & node_to_cnf(*lhs | *rhs_rhs),
             _ => unreachable!(),
         }
     } else {
