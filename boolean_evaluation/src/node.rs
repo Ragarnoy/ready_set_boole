@@ -2,9 +2,9 @@ use crate::operator::Operator;
 use crate::set::Set;
 use crate::variable::Variable;
 use std::cell::RefCell;
-use std::fmt;
 use std::fmt::{Display, Formatter};
 use std::rc::Rc;
+use std::{fmt, ops};
 use Node::*;
 use Operator::*;
 
@@ -180,6 +180,42 @@ fn eval_unary_sets(op: Operator, mut child: Set) -> Set {
             child
         }
         _ => unreachable!(),
+    }
+}
+
+impl ops::BitOr for Node {
+    type Output = Node;
+
+    fn bitor(self, rhs: Node) -> Node {
+        BinaryExpr {
+            op: Or,
+            lhs: Box::from(self),
+            rhs: Box::from(rhs),
+        }
+    }
+}
+
+impl ops::BitAnd for Node {
+    type Output = Node;
+
+    fn bitand(self, rhs: Node) -> Node {
+        BinaryExpr {
+            op: And,
+            lhs: Box::from(self),
+            rhs: Box::from(rhs),
+        }
+    }
+}
+
+impl ops::BitXor for Node {
+    type Output = Node;
+
+    fn bitxor(self, rhs: Node) -> Node {
+        BinaryExpr {
+            op: Xor,
+            lhs: Box::from(self),
+            rhs: Box::from(rhs),
+        }
     }
 }
 
