@@ -237,30 +237,30 @@ mod node_tests {
 
     #[test]
     // lots of rpn tests
-    fn test_print_rpn() {
+    fn test_to_rpn() {
         let teststr = "AB&";
         let node = Tree::from_str(teststr).unwrap();
-        assert_eq!(node.root.print_rpn(), teststr);
+        assert_eq!(node.root.to_rpn(), teststr);
     }
 
     #[test]
-    fn test_print_rpn_2() {
+    fn test_to_rpn_2() {
         let teststr = "AB&C|";
         let node = Tree::from_str(teststr).unwrap();
-        assert_eq!(node.root.print_rpn(), teststr);
+        assert_eq!(node.root.to_rpn(), teststr);
     }
 
     #[test]
-    fn test_print_rpn_3() {
+    fn test_to_rpn_3() {
         let teststr = "AB&C|D^";
         let node = Tree::from_str(teststr).unwrap();
-        assert_eq!(node.root.print_rpn(), teststr);
+        assert_eq!(node.root.to_rpn(), teststr);
     }
 
     #[test]
-    fn test_print_rpn_4() {
+    fn test_to_rpn_4() {
         let teststr = "AB&C|D^!";
         let node = Tree::from_str(teststr).unwrap();
-        assert_eq!(node.root.print_rpn(), teststr);
+        assert_eq!(node.root.to_rpn(), teststr);
     }
 }
