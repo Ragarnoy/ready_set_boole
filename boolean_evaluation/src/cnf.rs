@@ -1,11 +1,11 @@
-use crate::nnf::node_to_negation_normal_form;
+use crate::nnf::node_to_nnf;
 use crate::node::Node;
 use crate::operator::Operator;
 use Node::*;
 use Operator::*;
 
 pub fn node_to_cnf(node: Node) -> Node {
-    let node = node_to_negation_normal_form(node);
+    let node = node_to_nnf(node);
     if let BinaryExpr { op, lhs, rhs } = node {
         match op {
             And => BinaryExpr {
