@@ -195,6 +195,17 @@ impl ops::BitOr for Node {
     }
 }
 
+impl ops::Not for Node {
+    type Output = Node;
+
+    fn not(self) -> Node {
+        UnaryExpr {
+            op: Not,
+            child: Box::from(self),
+        }
+    }
+}
+
 impl ops::BitAnd for Node {
     type Output = Node;
 
