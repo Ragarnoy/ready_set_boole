@@ -39,25 +39,26 @@ mod test_powerset {
 
     #[test]
     fn test_two() {
-        assert_eq!(powerset(&[1, 2]), vec![
-            vec![],
-            vec![1],
-            vec![2],
-            vec![1, 2],
-        ]);
+        assert_eq!(
+            powerset(&[1, 2]),
+            vec![vec![], vec![1], vec![2], vec![1, 2],]
+        );
     }
 
     #[test]
     fn test_three() {
-        assert_eq!(powerset(&[1, 2, 3]), vec![
-            vec![],
-            vec![1],
-            vec![2],
-            vec![1, 2],
-            vec![3],
-            vec![1, 3],
-            vec![2, 3],
-            vec![1, 2, 3],
-        ]);
+        assert_eq!(
+            powerset(&[1, 2, 3]),
+            vec![
+                vec![],
+                vec![1],
+                vec![2],
+                vec![1, 2],
+                vec![3],
+                vec![1, 3],
+                vec![2, 3],
+                vec![1, 2, 3],
+            ]
+        );
     }
 }
