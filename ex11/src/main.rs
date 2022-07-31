@@ -52,6 +52,4 @@ fn main() {
         println!("{} => {} {}", f, x, y);
         f += 0.01;
     }
-    // let result = reverse_map(0.5);
-    // println!("{} {}", result.0, result.1);
 }
