@@ -56,10 +56,13 @@ fn distribute_both(node: Node) -> Node {
                     rhs: rhs_rhs,
                 },
             ) => {
+                let lhs_lhs = node_to_cnf(*lhs_lhs);
+                let lhs_rhs = node_to_cnf(*lhs_rhs);
+                let rhs_lhs = node_to_cnf(*rhs_lhs);
+                let rhs_rhs = node_to_cnf(*rhs_rhs);
                 // ((ll | rl) & (ll | rr)) & ((lr | rl) & (lr | rr))
-                (node_to_cnf(*lhs_lhs.clone() | *rhs_lhs.clone())
-                    & node_to_cnf(*lhs_lhs | *rhs_rhs.clone()))
-                    & (node_to_cnf(*lhs_rhs.clone() | *rhs_lhs) & node_to_cnf(*lhs_rhs | *rhs_rhs))
+                ((lhs_lhs.clone() | rhs_lhs.clone()) & (lhs_lhs | rhs_rhs.clone()))
+                    & ((lhs_rhs.clone() | rhs_lhs) & (lhs_rhs | rhs_rhs))
             }
             _ => unreachable!(),
         }
