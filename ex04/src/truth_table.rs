@@ -16,7 +16,7 @@ impl FromStr for TruthTable {
         if s.is_empty() {
             return Err(String::from("Empty input!"));
         }
-        if !s.contains(VALID_TOKENS) || !s.contains(|ch| ('A'..='Z').contains(&ch)) {
+        if !s.contains(VALID_TOKENS) && !s.contains(|ch| ('A'..='Z').contains(&ch)) {
             return Err(String::from("Invalid tokens"));
         }
 
