@@ -21,6 +21,7 @@ pub fn node_to_nnf(node: Node) -> Node {
 }
 
 pub fn binary_expr_to_nnf(node: Node) -> Node {
+    dbg!();
     if let BinaryExpr { op, lhs, rhs } = node {
         node_to_nnf(match op {
             Imply => !*lhs | *rhs,
@@ -43,10 +44,14 @@ pub fn unary_expr_to_nnf(node: Node) -> Node {
                 let rhs = *rhs;
                 node_to_nnf(match op {
                     Imply => !lhs | rhs,
-                    Xnor => (!lhs.clone() & rhs.clone()) | (lhs & !rhs),
+                    Xnor => binary_expr_to_nnf(lhs ^ rhs),
                     And => !lhs | !rhs,
                     Or => !lhs & !rhs,
-                    Xor => (lhs.clone() & rhs.clone()) | (!lhs | !rhs),
+                    Xor => binary_expr_to_nnf(BinaryExpr {
+                        op: Xnor,
+                        lhs: Box::new(lhs),
+                        rhs: Box::new(rhs),
+                    }),
                     Not => unreachable!(),
                 })
             }
