@@ -20,8 +20,7 @@ pub struct Tree {
 impl Tree {
     pub fn sat(self) -> bool {
         if let Some(variable_list) = self.variable_list {
-            for bitfield in 0..2u32.pow(variable_list.len() as u32)
-            {
+            for bitfield in 0..2u32.pow(variable_list.len() as u32) {
                 for (i, v) in variable_list.iter().filter(|v| v.is_some()).enumerate() {
                     {
                         let mut v = v.as_ref().unwrap().borrow_mut();

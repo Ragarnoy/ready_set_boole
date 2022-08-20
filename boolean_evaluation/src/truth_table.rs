@@ -1,9 +1,9 @@
-use std::fmt::{Display, Formatter};
 use crate::tree::Tree;
+use std::fmt::{Display, Formatter};
 
 pub struct TruthTable {
     variables: Vec<char>,
-    values: Vec<Vec<bool>>
+    values: Vec<Vec<bool>>,
 }
 
 impl Display for TruthTable {
@@ -33,23 +33,30 @@ impl From<Tree> for TruthTable {
         if let Some(variable_list) = tree.variable_list.as_ref() {
             let values: Vec<Vec<bool>> = (0..2u32.pow(variable_list.len() as u32))
                 .map(|bitfield| {
-                    let mut tmp = variable_list.iter().enumerate()
+                    let mut tmp = variable_list
+                        .iter()
+                        .enumerate()
                         .map(|(i, v)| {
                             let mask = (bitfield & (1u32 << i)) != 0;
                             if let Some(v) = v {
                                 v.borrow_mut().value = mask;
                             }
                             mask
-                        }).collect::<Vec<bool>>();
+                        })
+                        .collect::<Vec<bool>>();
                     tmp.push(tree.clone().root.eval_ref());
                     tmp
-                }).collect();
+                })
+                .collect();
             Self {
-                variables: variable_list.iter().map(|v| v.as_ref().unwrap().borrow().name).collect(),
-                values
+                variables: variable_list
+                    .iter()
+                    .map(|v| v.as_ref().unwrap().borrow().name)
+                    .collect(),
+                values,
             }
+        } else {
+            panic!("Tree must have a variable list")
         }
-        else { panic!("Tree must have a variable list") }
-
     }
 }
