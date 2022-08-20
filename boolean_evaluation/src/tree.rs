@@ -11,6 +11,7 @@ pub type VariableRef = Rc<RefCell<Variable>>;
 pub type VariableRefList = Vec<Option<VariableRef>>;
 const VALID_TOKENS: &[char] = &['1', '0', '!', '&', '^', '=', '|', '>'];
 
+#[derive(Debug, Clone)]
 pub struct Tree {
     pub root: Node,
     pub variable_list: Option<VariableRefList>,
@@ -19,7 +20,7 @@ pub struct Tree {
 impl Tree {
     pub fn sat(self) -> bool {
         if let Some(variable_list) = self.variable_list {
-            for bitfield in 0..2u32.pow(variable_list.iter().filter(|v| v.is_some()).count() as u32)
+            for bitfield in 0..2u32.pow(variable_list.len() as u32)
             {
                 for (i, v) in variable_list.iter().filter(|v| v.is_some()).enumerate() {
                     {
@@ -66,25 +67,22 @@ impl FromStr for Tree {
     type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        if s.is_empty() {
+        if s.is_empty() && !s.contains(VALID_TOKENS) {
             return Err(String::from("Empty input!"));
-        }
-        if !s.contains(VALID_TOKENS) {
-            return Err(String::from("Invalid tokens"));
         }
 
         let mut node_stack: Vec<Node> = Vec::with_capacity(50);
-        let mut vec_alphabet: VariableRefList = vec![None; 26];
+        let mut vec_variables: VariableRefList = vec![None; 26];
 
         for c in s.chars() {
             let node = match c {
                 'A'..='Z' => {
                     let idx = c as usize - 'A' as usize;
-                    if let Some(v) = &vec_alphabet[idx] {
+                    if let Some(v) = &vec_variables[idx] {
                         Variable(v.clone())
                     } else {
                         let v = Rc::new(RefCell::new(Variable::new(c)));
-                        vec_alphabet[idx] = Some(v.clone());
+                        vec_variables[idx] = Some(v.clone());
                         Variable(v)
                     }
                 }
@@ -129,8 +127,8 @@ impl FromStr for Tree {
             Ok(Self {
                 root: node_stack.remove(0),
                 variable_list: if s.contains(char::is_alphabetic) {
-                    vec_alphabet.retain(|v| v.is_some());
-                    Some(vec_alphabet)
+                    vec_variables.retain(|v| v.is_some());
+                    Some(vec_variables)
                 } else {
                     None
                 },

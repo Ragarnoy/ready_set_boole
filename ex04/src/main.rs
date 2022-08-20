@@ -1,10 +1,8 @@
-mod truth_table;
-
-use crate::truth_table::TruthTable;
-use std::str::FromStr;
+use boolean_evaluation::tree::Tree;
+use boolean_evaluation::truth_table::TruthTable;
 
 fn print_truth_table(formula: &str) {
-    let truth_table = TruthTable::from_str(formula).unwrap();
+    let truth_table = TruthTable::from(formula.parse::<Tree>().unwrap());
     print!("{}", truth_table);
 }
 
