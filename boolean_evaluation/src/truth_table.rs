@@ -1,6 +1,7 @@
 use crate::tree::Tree;
 use std::fmt::{Display, Formatter};
 
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TruthTable {
     variables: Vec<char>,
     values: Vec<Vec<bool>>,

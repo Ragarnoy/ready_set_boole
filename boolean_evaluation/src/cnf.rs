@@ -110,33 +110,38 @@ fn distribute_to_right(node: Node) -> Node {
 mod cnf_test {
     use crate::cnf::{distribute_both, distribute_to_left, distribute_to_right, node_to_cnf};
     use crate::tree::Tree;
+    use crate::truth_table::TruthTable;
     use std::str::FromStr;
 
     #[test]
     fn basic_node_to_cnf() {
         let node = Tree::from_str("ABC|DE&&|").unwrap();
         let result = Tree::from_str("ABC||AD|AE|&&").unwrap();
-        assert_eq!(node_to_cnf(node.root), result.root);
+        assert_eq!(node_to_cnf(node.root.clone()), result.root);
+        assert_eq!(TruthTable::from(node), TruthTable::from(result));
     }
 
     #[test]
     fn basic_distribute_both() {
         let node = Tree::from_str("AB&CD&|").unwrap();
         let result = Tree::from_str("AC|AD|&BC|BD|&&").unwrap();
-        assert_eq!(distribute_both(node.root), result.root);
+        assert_eq!(distribute_both(node.root.clone()), result.root);
+        assert_eq!(TruthTable::from(node), TruthTable::from(result));
     }
 
     #[test]
     fn basic_distribute_left() {
         let node = Tree::from_str("AB&C|").unwrap();
         let result = Tree::from_str("AC|BC|&").unwrap();
-        assert_eq!(distribute_to_left(node.root), result.root);
+        assert_eq!(distribute_to_left(node.root.clone()), result.root);
+        assert_eq!(TruthTable::from(node), TruthTable::from(result));
     }
 
     #[test]
     fn basic_distribute_right() {
         let node = Tree::from_str("CAB&|").unwrap();
         let result = Tree::from_str("CA|CB|&").unwrap();
-        assert_eq!(distribute_to_right(node.root), result.root);
+        assert_eq!(distribute_to_right(node.root.clone()), result.root);
+        assert_eq!(TruthTable::from(node), TruthTable::from(result));
     }
 }

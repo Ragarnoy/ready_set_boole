@@ -21,7 +21,6 @@ pub fn node_to_nnf(node: Node) -> Node {
 }
 
 pub fn binary_expr_to_nnf(node: Node) -> Node {
-    dbg!();
     if let BinaryExpr { op, lhs, rhs } = node {
         node_to_nnf(match op {
             Imply => !*lhs | *rhs,
@@ -67,48 +66,55 @@ mod nnf_test {
     use crate::nnf::{node_to_nnf, unary_expr_to_nnf};
 
     use crate::tree::Tree;
+    use crate::truth_table::TruthTable;
     use std::str::FromStr;
 
     #[test]
     fn test_nnf_not_and() {
         let node = Tree::from_str("AB&!").unwrap();
         let result = Tree::from_str("A!B!|").unwrap();
-        assert_eq!(node_to_nnf(node.root), result.root);
+        assert_eq!(node_to_nnf(node.root.clone()), result.root);
+        assert_eq!(TruthTable::from(node), TruthTable::from(result));
     }
 
     #[test]
     fn test_nnf_imply() {
         let node = Tree::from_str("AB>").unwrap();
         let result = Tree::from_str("A!B|").unwrap();
-        assert_eq!(node_to_nnf(node.root), result.root);
+        assert_eq!(node_to_nnf(node.root.clone()), result.root);
+        assert_eq!(TruthTable::from(node), TruthTable::from(result));
     }
 
     #[test]
     fn test_nnf_xnor() {
         let node = Tree::from_str("AB=").unwrap();
         let result = Tree::from_str("AB&A!B!&|").unwrap();
-        assert_eq!(node_to_nnf(node.root), result.root);
+        assert_eq!(node_to_nnf(node.root.clone()), result.root);
+        assert_eq!(TruthTable::from(node), TruthTable::from(result));
     }
 
     #[test]
     fn test_nnf_xor() {
         let node = Tree::from_str("AB^").unwrap();
         let result = Tree::from_str("A!B&AB!&|").unwrap();
-        assert_eq!(node_to_nnf(node.root), result.root);
+        assert_eq!(node_to_nnf(node.root.clone()), result.root);
+        assert_eq!(TruthTable::from(node), TruthTable::from(result));
     }
 
     #[test]
     fn test_nnf_complex() {
         let node = Tree::from_str("AB|C&!").unwrap();
         let result = Tree::from_str("A!B!&C!|").unwrap();
-        assert_eq!(node_to_nnf(node.root), result.root);
+        assert_eq!(node_to_nnf(node.root.clone()), result.root);
+        assert_eq!(TruthTable::from(node), TruthTable::from(result));
     }
 
     #[test]
     fn test_nnf_not_or() {
         let node = Tree::from_str("AB|!").unwrap();
         let result = Tree::from_str("A!B!&").unwrap();
-        assert_eq!(node_to_nnf(node.root), result.root);
+        assert_eq!(node_to_nnf(node.root.clone()), result.root);
+        assert_eq!(TruthTable::from(node), TruthTable::from(result));
     }
 
     #[test]
