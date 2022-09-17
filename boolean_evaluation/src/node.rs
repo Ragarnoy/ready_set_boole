@@ -42,8 +42,8 @@ impl Node {
         match self {
             Variable(v) => v.borrow().value,
             Constant(p) => p,
-            BinaryExpr { op, lhs, rhs } => eval_binary(lhs.eval(), op, rhs.eval()),
-            UnaryExpr { op, child } => eval_unary(op, child.eval()),
+            BinaryExpr { op, lhs, rhs } => op.eval_binary(lhs.eval(), rhs.eval()),
+            UnaryExpr { op, child } => op.eval_unary(child.eval()),
         }
     }
 
@@ -51,23 +51,23 @@ impl Node {
         match self {
             Variable(v) => v.borrow().value,
             Constant(p) => *p,
-            BinaryExpr { op, lhs, rhs } => eval_binary(lhs.eval_ref(), *op, rhs.eval_ref()),
-            UnaryExpr { op, child } => eval_unary(*op, child.eval_ref()),
+            BinaryExpr { op, lhs, rhs } => op.eval_binary(lhs.eval_ref(), rhs.eval_ref()),
+            UnaryExpr { op, child } => op.eval_unary(child.eval_ref()),
         }
     }
 
     pub fn compute_sets(&self) -> Set {
         match self {
-            Variable(v) => Set::new(v.borrow().set.as_ref().unwrap().clone()),
-            Constant(p) => Set::new(vec![if *p { 1 } else { 0 }]),
+            Variable(v) => Set::from(v.borrow().set.as_ref().unwrap().clone()),
+            Constant(p) => Set::from(vec![if *p { 1 } else { 0 }]),
             BinaryExpr { op, lhs, rhs } => {
                 let lhs_sets = lhs.compute_sets();
                 let rhs_sets = rhs.compute_sets();
-                eval_binary_sets(lhs_sets, *op, rhs_sets)
+                op.eval_binary_sets(lhs_sets, rhs_sets)
             }
             UnaryExpr { op, child } => {
                 let child_sets = child.compute_sets();
-                eval_unary_sets(*op, child_sets)
+                op.eval_unary_sets(child_sets)
             }
         }
     }
@@ -89,95 +89,6 @@ impl Node {
             )),
         }
         ret
-    }
-}
-
-fn eval_binary(lhs: bool, op: Operator, rhs: bool) -> bool {
-    match op {
-        Imply => !lhs | rhs,
-        Xnor => lhs == rhs,
-        And => lhs & rhs,
-        Xor => lhs ^ rhs,
-        Or => lhs | rhs,
-        _ => unreachable!(),
-    }
-}
-
-fn eval_binary_sets(lhs: Set, op: Operator, rhs: Set) -> Set {
-    match op {
-        And => match (lhs.is_complement, rhs.is_complement) {
-            (false, false) => lhs
-                .values
-                .iter()
-                .filter(|x| rhs.values.contains(x))
-                .copied()
-                .collect(),
-            (false, true) => lhs
-                .values
-                .iter()
-                .filter(|x| !rhs.values.contains(x))
-                .copied()
-                .collect(),
-            (true, false) => rhs
-                .values
-                .iter()
-                .filter(|x| !lhs.values.contains(x))
-                .copied()
-                .collect(),
-            (true, true) => Set {
-                values: [
-                    lhs.values.clone(),
-                    rhs.values
-                        .iter()
-                        .filter(|x| !lhs.values.contains(x))
-                        .copied()
-                        .collect(),
-                ]
-                .concat(),
-                is_complement: true,
-            },
-        },
-        Or => match (lhs.is_complement, rhs.is_complement) {
-            (false, false) => [
-                lhs.values.clone(),
-                rhs.values
-                    .iter()
-                    .filter(|x| !lhs.values.contains(x))
-                    .copied()
-                    .collect(),
-            ]
-            .concat()
-            .into(),
-            (false, true) => lhs,
-            (true, false) => rhs,
-            (true, true) => Set {
-                values: lhs
-                    .values
-                    .iter()
-                    .filter(|x| rhs.values.contains(x))
-                    .copied()
-                    .collect(),
-                is_complement: true,
-            },
-        },
-        _ => unreachable!(),
-    }
-}
-
-fn eval_unary(op: Operator, child: bool) -> bool {
-    match op {
-        Not => !child,
-        _ => unreachable!(),
-    }
-}
-
-fn eval_unary_sets(op: Operator, mut child: Set) -> Set {
-    match op {
-        Not => {
-            child.is_complement = !child.is_complement;
-            child
-        }
-        _ => unreachable!(),
     }
 }
 
