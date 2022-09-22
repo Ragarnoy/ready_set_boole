@@ -14,6 +14,7 @@ const VALID_TOKENS: &[char] = &['1', '0', '!', '&', '^', '=', '|', '>'];
 #[derive(Debug, Clone)]
 pub struct Tree {
     pub root: Node,
+    universe: Vec<i32>,
     pub variable_list: Option<VariableRefList>,
 }
 
@@ -40,7 +41,10 @@ impl Tree {
     pub fn evaluate_sets(self) -> Vec<i32> {
         let ret = self.root.compute_sets();
         if ret.is_complement {
-            vec![]
+            self.universe
+                .iter()
+                .filter(|x| !ret.values.contains(x)).copied()
+                .collect()
         } else {
             ret.values
         }
@@ -51,6 +55,9 @@ impl Tree {
             if sets.len() != variable_list.len() {
                 panic!("Number of sets does not match number of variables");
             }
+            self.universe = sets.iter().flatten().copied().collect();
+            self.universe.sort_unstable();
+            self.universe.dedup();
             sets.into_iter()
                 .zip(variable_list.iter())
                 .filter(|(_, v)| v.is_some())
@@ -125,6 +132,7 @@ impl FromStr for Tree {
         } else {
             Ok(Self {
                 root: node_stack.remove(0),
+                universe: vec![],
                 variable_list: if s.contains(char::is_alphabetic) {
                     vec_variables.retain(|v| v.is_some());
                     Some(vec_variables)
