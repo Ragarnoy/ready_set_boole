@@ -1,5 +1,6 @@
 use crate::set::Set;
 use std::fmt;
+use Operator::*;
 use std::fmt::{Debug, Display, Formatter};
 
 #[derive(Clone, PartialEq, Eq, Copy)]
@@ -15,12 +16,12 @@ pub enum Operator {
 impl Display for Operator {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
-            Operator::Not => write!(f, "¬"),
-            Operator::And => write!(f, "∧"),
-            Operator::Or => write!(f, "∨"),
-            Operator::Xor => write!(f, "⊕"),
-            Operator::Imply => write!(f, "→"),
-            Operator::Xnor => write!(f, "⇔"),
+            Not => write!(f, "¬"),
+            And => write!(f, "∧"),
+            Or => write!(f, "∨"),
+            Xor => write!(f, "⊕"),
+            Imply => write!(f, "→"),
+            Xnor => write!(f, "⇔"),
         }
     }
 }
@@ -28,12 +29,12 @@ impl Display for Operator {
 impl Debug for Operator {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
-            Operator::Not => write!(f, "!"),
-            Operator::And => write!(f, "&"),
-            Operator::Or => write!(f, "|"),
-            Operator::Xor => write!(f, "^"),
-            Operator::Imply => write!(f, ">"),
-            Operator::Xnor => write!(f, "="),
+            Not => write!(f, "!"),
+            And => write!(f, "&"),
+            Or => write!(f, "|"),
+            Xor => write!(f, "^"),
+            Imply => write!(f, ">"),
+            Xnor => write!(f, "="),
         }
     }
 }
@@ -41,86 +42,33 @@ impl Debug for Operator {
 impl Operator {
     pub fn eval_binary(self, lhs: bool, rhs: bool) -> bool {
         match self {
-            Operator::Imply => !lhs | rhs,
-            Operator::Xnor => lhs == rhs,
-            Operator::And => lhs & rhs,
-            Operator::Xor => lhs ^ rhs,
-            Operator::Or => lhs | rhs,
+            Imply => !lhs | rhs,
+            Xnor => lhs == rhs,
+            And => lhs & rhs,
+            Xor => lhs ^ rhs,
+            Or => lhs | rhs,
             _ => unreachable!(),
         }
     }
 
     pub fn eval_unary(self, child: bool) -> bool {
         match self {
-            Operator::Not => !child,
+            Not => !child,
             _ => unreachable!(),
         }
     }
 
     pub fn eval_binary_sets(self, lhs: Set, rhs: Set) -> Set {
         match self {
-            Operator::And => match (lhs.is_complement, rhs.is_complement) {
-                (false, false) => lhs
-                    .values
-                    .iter()
-                    .filter(|x| rhs.values.contains(x))
-                    .copied()
-                    .collect(),
-                (false, true) => lhs
-                    .values
-                    .iter()
-                    .filter(|x| !rhs.values.contains(x))
-                    .copied()
-                    .collect(),
-                (true, false) => rhs
-                    .values
-                    .iter()
-                    .filter(|x| !lhs.values.contains(x))
-                    .copied()
-                    .collect(),
-                (true, true) => Set {
-                    values: [
-                        lhs.values.clone(),
-                        rhs.values
-                            .iter()
-                            .filter(|x| !lhs.values.contains(x))
-                            .copied()
-                            .collect(),
-                    ]
-                    .concat(),
-                    is_complement: true,
-                },
-            },
-            Operator::Or => match (lhs.is_complement, rhs.is_complement) {
-                (false, false) => [
-                    lhs.values.clone(),
-                    rhs.values
-                        .iter()
-                        .filter(|x| !lhs.values.contains(x))
-                        .copied()
-                        .collect(),
-                ]
-                .concat()
-                .into(),
-                (false, true) => lhs,
-                (true, false) => rhs,
-                (true, true) => Set {
-                    values: lhs
-                        .values
-                        .iter()
-                        .filter(|x| rhs.values.contains(x))
-                        .copied()
-                        .collect(),
-                    is_complement: true,
-                },
-            },
+            And => lhs & rhs,
+            Or => lhs | rhs,
             _ => unreachable!(),
         }
     }
 
     pub fn eval_unary_sets(self, mut child: Set) -> Set {
         match self {
-            Operator::Not => {
+            Not => {
                 child.is_complement = !child.is_complement;
                 child
             }
@@ -140,42 +88,42 @@ mod operator_tests {
 
             #[test]
             fn test_eval_and() {
-                assert!(Operator::And.eval_binary(true, true));
-                assert!(!Operator::And.eval_binary(true, false));
-                assert!(!Operator::And.eval_binary(false, true));
-                assert!(!Operator::And.eval_binary(false, false));
+                assert!(And.eval_binary(true, true));
+                assert!(!And.eval_binary(true, false));
+                assert!(!And.eval_binary(false, true));
+                assert!(!And.eval_binary(false, false));
             }
 
             #[test]
             fn test_eval_or() {
-                assert!(Operator::Or.eval_binary(true, true));
-                assert!(Operator::Or.eval_binary(true, false));
-                assert!(Operator::Or.eval_binary(false, true));
-                assert!(!Operator::Or.eval_binary(false, false));
+                assert!(Or.eval_binary(true, true));
+                assert!(Or.eval_binary(true, false));
+                assert!(Or.eval_binary(false, true));
+                assert!(!Or.eval_binary(false, false));
             }
 
             #[test]
             fn test_eval_xor() {
-                assert!(!Operator::Xor.eval_binary(true, true));
-                assert!(Operator::Xor.eval_binary(true, false));
-                assert!(Operator::Xor.eval_binary(false, true));
-                assert!(!Operator::Xor.eval_binary(false, false));
+                assert!(!Xor.eval_binary(true, true));
+                assert!(Xor.eval_binary(true, false));
+                assert!(Xor.eval_binary(false, true));
+                assert!(!Xor.eval_binary(false, false));
             }
 
             #[test]
             fn test_eval_imply() {
-                assert!(Operator::Imply.eval_binary(true, true));
-                assert!(!Operator::Imply.eval_binary(true, false));
-                assert!(Operator::Imply.eval_binary(false, true));
-                assert!(Operator::Imply.eval_binary(false, false));
+                assert!(Imply.eval_binary(true, true));
+                assert!(!Imply.eval_binary(true, false));
+                assert!(Imply.eval_binary(false, true));
+                assert!(Imply.eval_binary(false, false));
             }
 
             #[test]
             fn test_eval_xnor() {
-                assert!(Operator::Xnor.eval_binary(true, true));
-                assert!(!Operator::Xnor.eval_binary(true, false));
-                assert!(!Operator::Xnor.eval_binary(false, true));
-                assert!(Operator::Xnor.eval_binary(false, false));
+                assert!(Xnor.eval_binary(true, true));
+                assert!(!Xnor.eval_binary(true, false));
+                assert!(!Xnor.eval_binary(false, true));
+                assert!(Xnor.eval_binary(false, false));
             }
         }
         mod unary {
@@ -183,8 +131,8 @@ mod operator_tests {
 
             #[test]
             fn test_eval_unary() {
-                assert!(!Operator::Not.eval_unary(true));
-                assert!(Operator::Not.eval_unary(false));
+                assert!(!Not.eval_unary(true));
+                assert!(Not.eval_unary(false));
             }
         }
     }
@@ -198,31 +146,31 @@ mod operator_tests {
             #[test]
             fn test_eval_and() {
                 assert_eq!(
-                    Operator::And
+                    And
                         .eval_binary_sets(Set::from(vec![1, 2, 3]), Set::from(vec![2, 3, 4])),
                     Set::from(vec![2, 3])
                 );
                 assert_eq!(
-                    Operator::And
+                    And
                         .eval_binary_sets(Set::from(vec![1, 2, 3]), Set::from(vec![4, 5, 6])),
                     Set::from(vec![])
                 );
                 assert_eq!(
-                    Operator::And.eval_binary_sets(
+                    And.eval_binary_sets(
                         Set::from(vec![1, 2, 3]),
                         Set::from(vec![4, 5, 6]).complement()
                     ),
-                    Set::from(vec![1, 2, 3])
+                    Set::from(vec![4, 5, 6]).complement()
                 );
                 assert_eq!(
-                    Operator::And.eval_binary_sets(
+                    And.eval_binary_sets(
                         Set::from(vec![1, 2, 3]).complement(),
                         Set::from(vec![4, 5, 6])
                     ),
-                    Set::from(vec![4, 5, 6])
+                    Set::from(vec![1, 2, 3]).complement()
                 );
                 assert_eq!(
-                    Operator::And.eval_binary_sets(
+                    And.eval_binary_sets(
                         Set::from(vec![1, 2, 3]).complement(),
                         Set::from(vec![4, 5, 6]).complement()
                     ),
@@ -233,35 +181,35 @@ mod operator_tests {
             #[test]
             fn test_eval_or() {
                 assert_eq!(
-                    Operator::Or
+                    Or
                         .eval_binary_sets(Set::from(vec![1, 2, 3]), Set::from(vec![2, 3, 4])),
                     Set::from(vec![1, 2, 3, 4])
                 );
                 assert_eq!(
-                    Operator::Or
+                    Or
                         .eval_binary_sets(Set::from(vec![1, 2, 3]), Set::from(vec![4, 5, 6])),
                     Set::from(vec![1, 2, 3, 4, 5, 6])
                 );
                 assert_eq!(
-                    Operator::Or.eval_binary_sets(
+                    Or.eval_binary_sets(
                         Set::from(vec![1, 2, 3]),
                         Set::from(vec![4, 5, 6]).complement()
                     ),
-                    Set::from(vec![1, 2, 3])
+                    Set::from(vec![4, 5, 6]).complement()
                 );
                 assert_eq!(
-                    Operator::Or.eval_binary_sets(
+                    Or.eval_binary_sets(
                         Set::from(vec![1, 2, 3]).complement(),
                         Set::from(vec![4, 5, 6])
                     ),
-                    Set::from(vec![4, 5, 6])
+                    Set::from(vec![1, 2, 3]).complement()
                 );
                 assert_eq!(
-                    Operator::Or.eval_binary_sets(
+                    Or.eval_binary_sets(
                         Set::from(vec![1, 2, 3]).complement(),
                         Set::from(vec![4, 5, 6]).complement()
                     ),
-                    Set::from(vec![1, 2, 3, 4, 5, 6])
+                    Set::from(vec![]).complement()
                 );
             }
         }

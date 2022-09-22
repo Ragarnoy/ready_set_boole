@@ -6,23 +6,25 @@ pub struct Set {
     pub is_complement: bool,
 }
 
-impl Not for Set {
-    type Output = Self;
-
-    fn not(self) -> Self::Output {
-        Self {
-            values: self.values,
-            is_complement: !self.is_complement,
-        }
-    }
-}
-
 impl Set {
     pub fn complement(self) -> Self {
         Self {
             values: self.values,
             is_complement: !self.is_complement,
         }
+    }
+
+    pub fn union(self, other: Self) -> Self {
+        [
+            self.values.clone(),
+            other.values
+                .iter()
+                .filter(|x| !self.values.contains(x))
+                .copied()
+                .collect(),
+        ]
+            .concat()
+            .into()
     }
 }
 
@@ -43,3 +45,95 @@ impl FromIterator<i32> for Set {
         }
     }
 }
+
+impl Not for Set {
+    type Output = Self;
+
+    fn not(self) -> Self::Output {
+        Self {
+            values: self.values,
+            is_complement: !self.is_complement,
+        }
+    }
+}
+
+impl std::ops::BitOr for Set {
+    type Output = Self;
+
+    fn bitor(self, rhs: Self) -> Self::Output {
+        match (self.is_complement, rhs.is_complement) {
+            (false, false) => self.union(rhs),
+            (true, true) => Set {
+                values: self
+                    .values
+                    .iter()
+                    .filter(|x| rhs.values.contains(x))
+                    .copied()
+                    .collect(),
+                is_complement: true,
+            },
+            (true, false) => Self {
+                values: self
+                    .values
+                    .into_iter()
+                    .filter(|x| !rhs.values.contains(x))
+                    .collect(),
+                is_complement: true,
+            },
+            (false, true) => Self {
+                values: rhs
+                    .values
+                    .into_iter()
+                    .filter(|x| !self.values.contains(x))
+                    .collect(),
+                is_complement: true,
+            },
+        }
+    }
+}
+
+impl std::ops::BitAnd for Set {
+    type Output = Self;
+
+    fn bitand(self, rhs: Self) -> Self::Output {
+        match (self.is_complement, rhs.is_complement) {
+            (false, false) => Self {
+                values: self
+                    .values
+                    .into_iter()
+                    .filter(|x| rhs.values.contains(x))
+                    .collect(),
+                is_complement: false,
+            },
+            (true, true) => Self {
+                values: [
+                    self.values.clone(),
+                    rhs.values
+                        .iter()
+                        .filter(|x| !self.values.contains(x))
+                        .copied()
+                        .collect(),
+                ]
+                .concat(),
+                is_complement: true,
+            },
+            (true, false) => Self {
+                values: self
+                    .values
+                    .into_iter()
+                    .filter(|x| !rhs.values.contains(x))
+                    .collect(),
+                is_complement: true,
+            },
+            (false, true) => Self {
+                values: rhs
+                    .values
+                    .into_iter()
+                    .filter(|x| !self.values.contains(x))
+                    .collect(),
+                is_complement: true,
+            },
+        }
+    }
+}
+
