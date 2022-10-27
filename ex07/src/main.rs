@@ -14,3 +14,19 @@ fn main() {
         println!("{}", sat("AA^"));
     }
 }
+
+#[cfg(test)]
+mod sat_42_test {
+    use crate::sat;
+
+    #[test]
+    fn test_sat_42() {
+        // TRUE
+        assert!(sat("AB|"));
+        assert!(sat("AB&"));
+
+        // FALSE
+        assert!(!sat("AA!&"));
+        assert!(!sat("AA^"));
+    }
+}

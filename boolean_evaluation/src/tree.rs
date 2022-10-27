@@ -152,14 +152,23 @@ mod tree_tests {
         use std::str::FromStr;
         #[test]
         fn test_sat_false() {
+            let tree = Tree::from_str("A!A&").unwrap();
+            assert!(!tree.sat());
             let tree = Tree::from_str("AA^").unwrap();
             assert!(!tree.sat());
         }
 
         #[test]
         fn test_sat_true() {
+            let tree = Tree::from_str("AA|").unwrap();
+            assert!(tree.sat());
+            let tree = Tree::from_str("AA&").unwrap();
+            assert!(tree.sat());
+            let tree = Tree::from_str("AA>").unwrap();
+            assert!(tree.sat());
             let tree = Tree::from_str("AB|").unwrap();
             assert!(tree.sat());
+
         }
     }
 

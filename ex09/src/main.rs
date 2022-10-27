@@ -22,3 +22,18 @@ fn main() {
         println!("{:?}", eval_set("AB&", vec![vec![0, 1, 2], vec![0, 1, 3]]));
     }
 }
+
+#[cfg(test)]
+mod set_evaluation_42_tests {
+    use crate::eval_set;
+
+    #[test]
+    fn test_set_evaluation_42() {
+        let sets = vec![vec![0, 1, 2], vec![0, 3, 4]];
+        assert_eq!(eval_set("AB&", sets), vec![0]);
+        let sets = vec![vec![0, 1, 2], vec![3, 4, 5]];
+        assert_eq!(eval_set("AB|", sets), vec![0, 1, 2, 3, 4, 5]);
+        let sets = vec![vec![0, 1, 2]];
+        assert_eq!(eval_set("A!", sets), vec![]);
+    }
+}

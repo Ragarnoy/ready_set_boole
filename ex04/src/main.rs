@@ -14,3 +14,27 @@ fn main() {
         print_truth_table("AB&C|");
     }
 }
+
+#[cfg(test)]
+mod truth_table_42_test {
+    use boolean_evaluation::tree::Tree;
+    use boolean_evaluation::truth_table::TruthTable;
+
+
+    #[test]
+    fn test_truth_table_42() {
+        let example =
+            "| A | B | C | = |\n\
+            |---|---|---|---|\n\
+            | 0 | 0 | 0 | 0 |\n\
+            | 1 | 0 | 0 | 0 |\n\
+            | 0 | 1 | 0 | 0 |\n\
+            | 1 | 1 | 0 | 1 |\n\
+            | 0 | 0 | 1 | 1 |\n\
+            | 1 | 0 | 1 | 1 |\n\
+            | 0 | 1 | 1 | 1 |\n\
+            | 1 | 1 | 1 | 1 |\n";
+        let output = TruthTable::from("AB&C|".parse::<Tree>().unwrap());
+        assert_eq!(example, output.to_string());
+    }
+}
